@@ -190,6 +190,19 @@ function truncate(text: string, maxLength = 120): string {
   return `${normalized.slice(0, Math.max(0, maxLength - 1)).trimEnd()}…`
 }
 
+export function getProfileDisplayName(profileName: string): string {
+  return profileName === 'default' ? 'Hermes — Papa' : profileName
+}
+
+export function getProfileDescription(profileName: string, description?: string): string {
+  const normalizedDescription = readString(description)
+  if (normalizedDescription) return normalizedDescription
+  if (profileName === 'default') {
+    return 'Moi, Hermes principal — profil default du gateway actif'
+  }
+  return ''
+}
+
 function normalizeAgentList(input: unknown): GatewayConfigAgent[] {
   if (!Array.isArray(input)) return []
 
@@ -247,12 +260,12 @@ async function fetchOperationsConfig(): Promise<ConfigPayload> {
   const profiles = await fetchClaudeProfiles()
   const list = profiles.map((profile) => ({
     id: profile.name,
-    name: profile.name === 'default' ? 'Workspace' : profile.name,
+    name: getProfileDisplayName(profile.name),
     model: profile.model || '',
     workspace: profile.path,
     agentDir: profile.path,
-    description: profile.description || '',
-    systemPrompt: profile.systemPrompt || '',
+    description: getProfileDescription(profile.name, profile.description),
+    systemPrompt: profile.name === 'default' ? '' : profile.systemPrompt || '',
   }))
   // Default-profile model becomes the operations defaultModel suggestion
   const defaultModel = profiles.find((p) => p.name === 'default')?.model || ''

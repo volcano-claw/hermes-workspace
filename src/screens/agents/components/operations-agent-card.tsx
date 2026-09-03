@@ -181,6 +181,8 @@ export function OperationsAgentCard({
   const { messages, sendMessage, isSending, error } = useAgentChat(agent.sessionKey)
   const cronJobCount = agent.jobs.length
   const isActive = agent.status === 'active' && !isPaused
+  const isPrimaryHermes = agent.id === 'default'
+  const modelLabel = agent.model ? agent.shortModel : 'Default (auto)'
 
   const toggleMutation = useMutation({
     mutationFn: async (payload: { jobId: string; enabled: boolean }) =>
@@ -340,8 +342,15 @@ export function OperationsAgentCard({
           {agent.meta.description || 'No description'}
         </p>
         <p className="w-full truncate text-[10px] text-[var(--theme-muted)]/80">
-          {agent.jobs.length > 0 ? `${agent.jobs.length} scheduled job${agent.jobs.length === 1 ? '' : 's'}` : 'Manual only'}
+          {isPrimaryHermes
+            ? `Profil principal · modèle actuel ${modelLabel}`
+            : agent.jobs.length > 0 ? `${agent.jobs.length} scheduled job${agent.jobs.length === 1 ? '' : 's'}` : 'Manual only'}
         </p>
+        {isPrimaryHermes ? (
+          <p className="w-full rounded-lg border border-[var(--theme-border)] bg-[var(--theme-bg)] px-2 py-1 text-[10px] leading-snug text-[var(--theme-muted)]">
+            C’est moi dans Workspace. Le modèle vient du profil Hermes default, pas d’un persona décoratif.
+          </p>
+        ) : null}
         {agent.needsSetup ? (
           <button
             type="button"

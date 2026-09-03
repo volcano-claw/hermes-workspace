@@ -201,6 +201,7 @@ export function OperationsAgentDetail({
         .filter((entry): entry is AvailableModel => Boolean(entry)),
     [modelsQuery.data?.models],
   )
+  const isPrimaryHermes = agent?.id === 'default'
 
   if (!open || !agent) return null
 
@@ -226,7 +227,9 @@ export function OperationsAgentDetail({
                 {agent.name}
               </h2>
               <p className="mt-2 text-sm text-[var(--theme-muted-2)]">
-                Update this agent without leaving the roster.
+                {isPrimaryHermes
+                  ? 'Profil principal Hermes : identité et modèle visibles, prompt système interne non éditable ici.'
+                  : 'Update this agent without leaving the roster.'}
               </p>
             </div>
           </div>
@@ -265,27 +268,42 @@ export function OperationsAgentDetail({
           <ModelSelector value={model} onChange={setModel} models={models} />
         </label>
 
-        <label className="mt-4 block space-y-2">
-          <span className="text-sm font-medium text-[var(--theme-text)]">
-            System Prompt
-          </span>
-          <textarea
-            value={systemPrompt}
-            onChange={(event) => setSystemPrompt(event.target.value)}
-            className="min-h-[220px] w-full rounded-2xl border border-[var(--theme-border)] bg-[var(--theme-bg)] px-4 py-3 text-sm text-[var(--theme-text)] outline-none focus:border-[var(--theme-accent)]"
-          />
-        </label>
+        {isPrimaryHermes ? (
+          <section className="mt-4 rounded-2xl border border-[var(--theme-border)] bg-[var(--theme-bg)] px-4 py-3 text-sm text-[var(--theme-muted-2)]">
+            <p className="font-medium text-[var(--theme-text)]">Prompt système</p>
+            <p className="mt-1">
+              Le prompt système de Hermes principal est chargé par le runtime et ne se configure pas depuis Assistants. Cet écran ne doit pas l’afficher comme un simple champ éditable.
+            </p>
+          </section>
+        ) : (
+          <label className="mt-4 block space-y-2">
+            <span className="text-sm font-medium text-[var(--theme-text)]">
+              System Prompt
+            </span>
+            <textarea
+              value={systemPrompt}
+              onChange={(event) => setSystemPrompt(event.target.value)}
+              className="min-h-[220px] w-full rounded-2xl border border-[var(--theme-border)] bg-[var(--theme-bg)] px-4 py-3 text-sm text-[var(--theme-text)] outline-none focus:border-[var(--theme-accent)]"
+            />
+          </label>
+        )}
 
         <div className="mt-6 flex flex-col gap-3 border-t border-[var(--theme-border)] pt-4 sm:flex-row sm:items-center sm:justify-between">
-          <Button
-            variant="ghost"
-            className="justify-start text-red-600 hover:bg-red-50 hover:text-red-700"
-            onClick={() => void onDelete(agent.id)}
-            disabled={isDeleting || isSaving}
-          >
-            <HugeiconsIcon icon={Delete02Icon} size={16} strokeWidth={1.8} />
-            {isDeleting ? 'Deleting…' : 'Delete agent'}
-          </Button>
+          {isPrimaryHermes ? (
+            <p className="text-xs text-[var(--theme-muted)]">
+              Le profil principal ne se supprime pas depuis Assistants.
+            </p>
+          ) : (
+            <Button
+              variant="ghost"
+              className="justify-start text-red-600 hover:bg-red-50 hover:text-red-700"
+              onClick={() => void onDelete(agent.id)}
+              disabled={isDeleting || isSaving}
+            >
+              <HugeiconsIcon icon={Delete02Icon} size={16} strokeWidth={1.8} />
+              {isDeleting ? 'Deleting…' : 'Delete agent'}
+            </Button>
+          )}
           <div className="flex justify-end gap-3">
             <Button
               variant="secondary"

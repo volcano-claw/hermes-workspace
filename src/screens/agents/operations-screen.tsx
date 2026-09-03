@@ -97,7 +97,7 @@ export function OperationsScreen() {
                 Assistants
               </h1>
               <p className="mt-1 text-sm text-primary-600">
-                Configure persistent agents and their defaults
+                Hermes principal, profils persistants, modèles et defaults
               </p>
             </div>
           </div>
