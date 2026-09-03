@@ -3,6 +3,7 @@ import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { chatQueryKeys } from '../chat-queries'
 import { readError } from '../utils'
 import { updateSessionTitleState } from '../session-title-store'
+import { withBasePath } from '@/lib/base-path'
 
 export type RenameSessionResult = {
   renameSession: (
@@ -29,7 +30,7 @@ export function useRenameSession(): RenameSessionResult {
     mutationFn: async function renameSessionRequest(
       payload: RenameSessionPayload,
     ) {
-      const res = await fetch('/api/sessions', {
+      const res = await fetch(withBasePath('/api/sessions'), {
         method: 'PATCH',
         headers: { 'content-type': 'application/json' },
         body: JSON.stringify({

@@ -4,6 +4,7 @@ import { useCallback, useEffect, useRef, useState } from 'react'
 import { AnimatePresence, motion } from 'motion/react'
 import { cn } from '@/lib/utils'
 import { ProviderLogo } from '@/components/provider-logo'
+import { withBasePath } from '@/lib/base-path'
 
 const KNOWN_PROVIDER_PREFIXES = [
   'openrouter',
@@ -343,7 +344,7 @@ export function ClaudeOnboarding() {
     setTestMessage('')
 
     try {
-      const res = await fetch('/api/send-stream', {
+      const res = await fetch(withBasePath('/api/send-stream'), {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({

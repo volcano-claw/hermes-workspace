@@ -10,6 +10,7 @@ import {
 } from 'react'
 import { useNavigate } from '@tanstack/react-router'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
+import { withBasePath } from '@/lib/base-path'
 
 import {
   deriveFriendlyIdFromKey,
@@ -2259,7 +2260,7 @@ export function ChatScreen({
     async (preferredFriendlyId?: string) => {
       setCreatingSession(true)
       try {
-        const res = await fetch('/api/sessions', {
+        const res = await fetch(withBasePath('/api/sessions'), {
           method: 'POST',
           headers: { 'content-type': 'application/json' },
           body: JSON.stringify(

@@ -15,6 +15,7 @@ import { toggleAgentPause } from '@/lib/gateway-api'
 import { toast } from '@/components/ui/toast'
 import { AgentHubLayout } from './agent-hub-layout'
 import { usePullToRefresh } from '@/hooks/use-pull-to-refresh'
+import { withBasePath } from '@/lib/base-path'
 
 type AgentGatewayEntry = {
   id?: string
@@ -718,7 +719,7 @@ export function AgentsScreen({ variant = 'mission-control' }: AgentsScreenProps)
   const sessionsQuery = useQuery({
     queryKey: ['agent-registry', 'sessions'],
     queryFn: async () => {
-      const res = await fetch('/api/sessions')
+      const res = await fetch(withBasePath('/api/sessions'))
       if (!res.ok) return [] as Array<SessionEntry>
       const payload = (await res.json()) as { sessions?: Array<SessionEntry> }
       return Array.isArray(payload.sessions) ? payload.sessions : []
@@ -1007,7 +1008,7 @@ export function AgentsScreen({ variant = 'mission-control' }: AgentsScreenProps)
       const baseFriendlyId = normalizeToken(agent.id || agent.name || 'agent')
       const friendlyId = `${baseFriendlyId}-${Math.random().toString(36).slice(2, 8)}`
 
-      const response = await fetch('/api/sessions', {
+      const response = await fetch(withBasePath('/api/sessions'), {
         method: 'POST',
         headers: { 'content-type': 'application/json' },
         body: JSON.stringify({

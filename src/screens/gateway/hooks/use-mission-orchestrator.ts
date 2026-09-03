@@ -5,6 +5,7 @@ import { emitFeedEvent } from '../components/feed-event-bus'
 import { resolveGatewayModelId } from '../components/hub-utils'
 import type { HubTask, TaskStatus } from '../components/task-board'
 import type { AgentSessionStatusEntry, TeamMember } from '../components/team-panel'
+import { withBasePath } from '@/lib/base-path'
 
 type SessionRecord = Record<string, unknown>
 
@@ -353,7 +354,7 @@ export function useMissionOrchestrator() {
     })
 
     if (reuseExisting) {
-      const listResp = await fetch('/api/sessions')
+      const listResp = await fetch(withBasePath('/api/sessions'))
       if (listResp.ok) {
         const listData = (await listResp.json()) as { sessions?: Array<Record<string, unknown>> }
         const existing = (listData.sessions ?? []).find(
@@ -380,7 +381,7 @@ export function useMissionOrchestrator() {
     }
 
     const model = resolveGatewayModelId(member.modelId)
-    const response = await fetch('/api/sessions', {
+    const response = await fetch(withBasePath('/api/sessions'), {
       method: 'POST',
       headers: { 'content-type': 'application/json' },
       body: JSON.stringify({
@@ -918,7 +919,7 @@ export function useMissionOrchestrator() {
 
     const pollSessions = async () => {
       try {
-        const response = await fetch('/api/sessions')
+        const response = await fetch(withBasePath('/api/sessions'))
         if (!response.ok || cancelled) return
 
         const payload = (await response.json().catch(() => ({}))) as { sessions?: SessionRecord[] }

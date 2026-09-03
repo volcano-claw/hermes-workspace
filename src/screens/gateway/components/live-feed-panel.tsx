@@ -6,6 +6,7 @@ import {
   type FeedEvent,
   type FeedEventType,
 } from './feed-event-bus'
+import { withBasePath } from '@/lib/base-path'
 
 // 'Activity' = tasks + agents (no health checks), default
 // 'Tasks'    = task events only
@@ -195,7 +196,7 @@ export function LiveFeedPanel() {
   useEffect(() => {
     async function pollSessions() {
       try {
-        const response = await fetch('/api/sessions')
+        const response = await fetch(withBasePath('/api/sessions'))
         if (!response.ok) return
         const payload = (await response.json()) as { sessions?: Array<SessionRecord> }
         const sessions = Array.isArray(payload.sessions) ? payload.sessions : []

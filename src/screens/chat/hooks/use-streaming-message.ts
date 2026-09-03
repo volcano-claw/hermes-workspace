@@ -3,6 +3,7 @@ import type { ChatAttachment, ChatMessage } from '../types'
 import { readResolvedSessionHeaders } from '@/lib/send-stream-session-headers'
 import { useChatStore } from '@/stores/chat-store'
 import { pushActivity } from '@/components/inspector/activity-store'
+import { withBasePath } from '@/lib/base-path'
 
 /**
  * Determine whether a stream-resolved session key change should trigger
@@ -858,7 +859,7 @@ export function useStreamingMessage(options: UseStreamingMessageOptions = {}) {
       useChatStore.getState().setHeartbeatActivity(null)
 
       try {
-        const response = await fetch('/api/send-stream', {
+        const response = await fetch(withBasePath('/api/send-stream'), {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({

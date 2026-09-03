@@ -5,6 +5,7 @@ import {
   sendToSession,
   type SessionHistoryMessage,
 } from '@/lib/gateway-api'
+import { withBasePath } from '@/lib/base-path'
 
 export type OperationsChatMessage = {
   id: string
@@ -54,7 +55,7 @@ export function useAgentChat(sessionKey: string) {
     queryFn: async () => {
       try {
         // Try the ClawSuite history endpoint first (uses sessionKey param)
-        const res = await fetch(`/api/history?sessionKey=${encodeURIComponent(sessionKey)}&limit=50`)
+        const res = await fetch(withBasePath(`/api/history?sessionKey=${encodeURIComponent(sessionKey)}&limit=50`))
         if (res.ok) {
           const data = await res.json()
           if (Array.isArray(data.messages)) return data.messages as SessionHistoryMessage[]

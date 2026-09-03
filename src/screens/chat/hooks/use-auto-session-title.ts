@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useRef } from 'react'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
+import { withBasePath } from '@/lib/base-path'
 
 import { chatQueryKeys } from '../chat-queries'
 import {
@@ -157,7 +158,7 @@ export function useAutoSessionTitle({
 
   const mutation = useMutation({
     mutationFn: async (payload: UpdateTitlePayload) => {
-      const res = await fetch('/api/sessions', {
+      const res = await fetch(withBasePath('/api/sessions'), {
         method: 'PATCH',
         headers: { 'content-type': 'application/json' },
         body: JSON.stringify({

@@ -24,6 +24,7 @@ import {
   TooltipRoot,
   TooltipTrigger,
 } from '@/components/ui/tooltip'
+import { withBasePath } from '@/lib/base-path'
 
 export function ChatPanel() {
   const isOpen = useWorkspaceStore((s) => s.chatPanelOpen)
@@ -51,7 +52,7 @@ export function ChatPanel() {
   const sessionsQuery = useQuery({
     queryKey: chatQueryKeys.sessions,
     queryFn: async () => {
-      const res = await fetch('/api/sessions')
+      const res = await fetch(withBasePath('/api/sessions'))
       if (!res.ok) return []
       const data = await res.json()
       return Array.isArray(data?.sessions)
