@@ -4,6 +4,7 @@ import { useNavigate } from '@tanstack/react-router'
 import { SteerModal } from './steer-modal'
 import { killAgentSession, toggleAgentPause } from '@/lib/gateway-api'
 import { toast } from '@/components/ui/toast'
+import { withBasePath } from '@/lib/base-path'
 
 export type AgentStreamPanelProps = {
   sessionKey: string
@@ -112,7 +113,7 @@ export function AgentStreamPanel({ sessionKey, agentName, agentColor, onClose }:
   const sessionsQuery = useQuery({
     queryKey: ['agent-stream-panel', 'sessions'],
     queryFn: async () => {
-      const res = await fetch('/api/sessions')
+      const res = await fetch(withBasePath('/api/sessions'))
       if (!res.ok) throw new Error('Failed to load sessions')
       const payload = (await res.json()) as { sessions?: Array<Row> }
       return Array.isArray(payload.sessions) ? payload.sessions : []
@@ -125,7 +126,7 @@ export function AgentStreamPanel({ sessionKey, agentName, agentColor, onClose }:
     queryKey: ['agent-stream-panel', 'history', sessionKey],
     queryFn: async () => {
       const params = new URLSearchParams({ sessionKey, limit: '20' })
-      const res = await fetch(`/api/history?${params.toString()}`)
+      const res = await fetch(withBasePath(`/api/history?${params.toString()}`))
       if (!res.ok) throw new Error('Failed to load history')
       const payload = (await res.json()) as Record<string, unknown>
       return Array.isArray(payload.messages) ? (payload.messages as Array<Row>) : []

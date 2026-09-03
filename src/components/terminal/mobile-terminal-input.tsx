@@ -1,10 +1,10 @@
 /**
-import { withBasePath } from '@/lib/base-path'
  * MobileTerminalInput — completely isolated from TerminalWorkspace.
  * Rendered as a sibling in WorkspaceShell so SSE stream re-renders
  * in the terminal component never freeze this input.
  */
 import { useCallback, useRef } from 'react'
+import { withBasePath } from '@/lib/base-path'
 import { HugeiconsIcon } from '@hugeicons/react'
 import { ArrowUp02Icon, Copy01Icon } from '@hugeicons/core-free-icons'
 import { useTerminalPanelStore } from '@/stores/terminal-panel-store'

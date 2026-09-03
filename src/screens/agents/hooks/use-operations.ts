@@ -5,10 +5,11 @@ import { toast } from '@/components/ui/toast'
 import { fetchCronJobs } from '@/lib/cron-api'
 import { fetchSessions, type GatewaySession } from '@/lib/gateway-api'
 import { formatModelName, formatRelativeTime } from '@/screens/dashboard/lib/formatters'
+import { withBasePath } from '@/lib/base-path'
 
-// Claude-Workspace adapter: Operations is backed by Hermes profiles
-// (each profile = one persistent agent). Profiles live at ~/.hermes/profiles/<name>/
-// with their own config.yaml, sessions, skills.
+// Hermes Workspace adapter: Operations is backed by Hermes profiles.
+// The default profile is Raphaël's primary Hermes, not a disposable agent.
+// Additional profiles are bounded worker assistants with their own config/sessions/skills.
 type ClaudeProfileSummary = {
   name: string
   path: string
@@ -191,14 +192,14 @@ function truncate(text: string, maxLength = 120): string {
 }
 
 export function getProfileDisplayName(profileName: string): string {
-  return profileName === 'default' ? 'Hermes — Papa' : profileName
+  return profileName === 'default' ? 'Hermès — fils de Raphaël' : profileName
 }
 
 export function getProfileDescription(profileName: string, description?: string): string {
   const normalizedDescription = readString(description)
   if (normalizedDescription) return normalizedDescription
   if (profileName === 'default') {
-    return 'Moi, Hermes principal — profil default du gateway actif'
+    return 'Hermès principal de Raphaël : connecté au runtime central, mémoire, skills, jobs et Workspace maison.'
   }
   return ''
 }
@@ -239,7 +240,7 @@ function parseConfigPayload(payload: ConfigPayload): ConfigPayload {
 }
 
 async function fetchClaudeProfiles(): Promise<ClaudeProfileSummary[]> {
-  const response = await fetch('/api/profiles/list')
+  const response = await fetch(withBasePath('/api/profiles/list'))
   const contentType = response.headers.get('content-type') || ''
   if (!contentType.includes('json')) {
     throw new Error('/api/profiles/list returned non-JSON')
@@ -284,7 +285,7 @@ async function createClaudeProfile(input: {
   provider?: string
   cloneFrom?: string
 }) {
-  const response = await fetch('/api/profiles/create', {
+  const response = await fetch(withBasePath('/api/profiles/create'), {
     method: 'POST',
     headers: { 'content-type': 'application/json' },
     body: JSON.stringify(input),
@@ -299,7 +300,7 @@ async function createClaudeProfile(input: {
 }
 
 async function updateClaudeProfile(name: string, patch: Record<string, unknown>) {
-  const response = await fetch('/api/profiles/update', {
+  const response = await fetch(withBasePath('/api/profiles/update'), {
     method: 'POST',
     headers: { 'content-type': 'application/json' },
     body: JSON.stringify({ name, patch }),
@@ -314,7 +315,7 @@ async function updateClaudeProfile(name: string, patch: Record<string, unknown>)
 }
 
 async function deleteClaudeProfile(name: string) {
-  const response = await fetch('/api/profiles/delete', {
+  const response = await fetch(withBasePath('/api/profiles/delete'), {
     method: 'POST',
     headers: { 'content-type': 'application/json' },
     body: JSON.stringify({ name }),

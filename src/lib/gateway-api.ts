@@ -1,3 +1,4 @@
+import { withBasePath } from '@/lib/base-path'
 export const BASE_URL =
   typeof window !== 'undefined'
     ? window.location.origin
@@ -118,7 +119,7 @@ async function readError(response: Response): Promise<string> {
 }
 
 function makeEndpoint(pathname: string): string {
-  return new URL(pathname, BASE_URL).toString()
+  return new URL(withBasePath(pathname), BASE_URL).toString()
 }
 
 function isAbortError(error: unknown): boolean {

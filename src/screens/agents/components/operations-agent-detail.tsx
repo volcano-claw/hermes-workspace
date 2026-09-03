@@ -221,15 +221,15 @@ export function OperationsAgentDetail({
             </div>
             <div>
               <p className="text-xs font-semibold uppercase tracking-[0.16em] text-[var(--theme-muted)]">
-                Agent Settings
+                Profile Settings
               </p>
               <h2 className="mt-2 text-2xl font-semibold tracking-tight text-[var(--theme-text)]">
                 {agent.name}
               </h2>
               <p className="mt-2 text-sm text-[var(--theme-muted-2)]">
                 {isPrimaryHermes
-                  ? 'Profil principal Hermes : identité et modèle visibles, prompt système interne non éditable ici.'
-                  : 'Update this agent without leaving the roster.'}
+                  ? 'Hermès principal — fils de Raphaël : connecté au runtime central. Identité visible ici; prompt système interne protégé, non éditable depuis ce panneau.'
+                  : 'Worker profile séparé : utile pour spécialiser une mission sans remplacer Hermès principal.'}
               </p>
             </div>
           </div>
@@ -272,7 +272,7 @@ export function OperationsAgentDetail({
           <section className="mt-4 rounded-2xl border border-[var(--theme-border)] bg-[var(--theme-bg)] px-4 py-3 text-sm text-[var(--theme-muted-2)]">
             <p className="font-medium text-[var(--theme-text)]">Prompt système</p>
             <p className="mt-1">
-              Le prompt système de Hermes principal est chargé par le runtime et ne se configure pas depuis Assistants. Cet écran ne doit pas l’afficher comme un simple champ éditable.
+              Le prompt système de Hermès principal vient du runtime central de Raphaël. Ce n’est pas le système générique d’origine et ce panneau ne peut pas le remplacer ni l’exposer comme un simple champ éditable.
             </p>
           </section>
         ) : (
@@ -291,7 +291,7 @@ export function OperationsAgentDetail({
         <div className="mt-6 flex flex-col gap-3 border-t border-[var(--theme-border)] pt-4 sm:flex-row sm:items-center sm:justify-between">
           {isPrimaryHermes ? (
             <p className="text-xs text-[var(--theme-muted)]">
-              Le profil principal ne se supprime pas depuis Assistants.
+              Hermès principal ne se supprime pas depuis ce cockpit.
             </p>
           ) : (
             <Button

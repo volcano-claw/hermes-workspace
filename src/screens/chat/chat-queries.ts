@@ -6,6 +6,7 @@ import type {
   SessionListResponse,
   SessionMeta,
 } from './types'
+import { withBasePath } from '@/lib/base-path'
 
 type StatusResponse = {
   ok: boolean
@@ -56,7 +57,7 @@ export const chatQueryKeys = {
 } as const
 
 export async function fetchSessions(): Promise<Array<SessionMeta>> {
-  const res = await fetch('/api/sessions')
+  const res = await fetch(withBasePath('/api/sessions'))
   if (!res.ok) throw new Error(await readError(res))
   const data = (await res.json()) as SessionListResponse
   return normalizeSessions(data.sessions)
@@ -69,7 +70,7 @@ export async function fetchHistory(payload: {
   const query = new URLSearchParams({ limit: '1000' })
   if (payload.sessionKey) query.set('sessionKey', payload.sessionKey)
   if (payload.friendlyId) query.set('friendlyId', payload.friendlyId)
-  const res = await fetch(`/api/history?${query.toString()}`)
+  const res = await fetch(withBasePath(`/api/history?${query.toString()}`))
   if (!res.ok) throw new Error(await readError(res))
   return (await res.json()) as HistoryResponse
 }
@@ -79,7 +80,7 @@ export async function fetchStatus(): Promise<StatusResponse> {
   const timeout = window.setTimeout(() => controller.abort(), 5000)
 
   try {
-    const res = await fetch('/api/ping', { signal: controller.signal })
+    const res = await fetch(withBasePath('/api/ping'), { signal: controller.signal })
     if (!res.ok) {
       const error = new Error(await readError(res)) as Error & {
         status?: number

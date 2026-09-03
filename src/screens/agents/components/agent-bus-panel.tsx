@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from 'react'
 import { cn } from '@/lib/utils'
+import { withBasePath } from '@/lib/base-path'
 
 type AgentBusSummary = {
   total?: number
@@ -119,7 +120,7 @@ export function AgentBusPanel() {
   async function load() {
     setError(null)
     try {
-      const response = await fetch('/api/agent-bus', {
+      const response = await fetch(withBasePath('/api/agent-bus'), {
         headers: { Accept: 'application/json' },
       })
       if (!response.ok) throw new Error(`Agent Bus responded HTTP ${response.status}`)
@@ -146,7 +147,7 @@ export function AgentBusPanel() {
   async function runAction(body: Record<string, unknown>, successMessage: string) {
     setAction({ status: 'running', message: 'Executing safe action...' })
     try {
-      const response = await fetch('/api/agent-bus', {
+      const response = await fetch(withBasePath('/api/agent-bus'), {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(body),

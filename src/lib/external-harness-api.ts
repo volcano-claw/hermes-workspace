@@ -1,3 +1,5 @@
+import { withBasePath } from '@/lib/base-path'
+
 export type ExternalRuntimeStatus =
   | 'online'
   | 'offline'
@@ -72,7 +74,7 @@ async function readPayload<T>(response: Response): Promise<T> {
 }
 
 export async function fetchExternalRuntimes(): Promise<ExternalHarnessSnapshot> {
-  const response = await fetch('/api/external-agents', {
+  const response = await fetch(withBasePath('/api/external-agents'), {
     headers: { accept: 'application/json' },
   })
   const payload = await readPayload<{
@@ -85,7 +87,7 @@ export async function fetchExternalRuntimes(): Promise<ExternalHarnessSnapshot> 
 export async function fetchExternalConversations(): Promise<
   Array<ExternalConversation>
 > {
-  const response = await fetch('/api/external-conversations', {
+  const response = await fetch(withBasePath('/api/external-conversations'), {
     headers: { accept: 'application/json' },
   })
   const payload = await readPayload<{
@@ -99,7 +101,7 @@ export async function createExternalConversation(input: {
   runtimeId: string
   name?: string
 }): Promise<ExternalConversation> {
-  const response = await fetch('/api/external-conversations', {
+  const response = await fetch(withBasePath('/api/external-conversations'), {
     method: 'POST',
     headers: { 'content-type': 'application/json' },
     body: JSON.stringify(input),

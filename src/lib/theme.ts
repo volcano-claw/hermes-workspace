@@ -20,13 +20,13 @@ export const THEMES: Array<{
 }> = [
   {
     id: 'claude-nous',
-    label: 'Nous',
-    description: 'Deep teal background, cream accent — matches Nous Research chrome',
+    label: 'Hermès Private',
+    description: 'Deep teal background, cream accent — private Raphaël / Hermès cockpit',
     icon: '◱',
   },
   {
     id: 'claude-nous-light',
-    label: 'Nous Light',
+    label: 'Hermès Private Light',
     description: 'Cold paper white with restrained cobalt framing',
     icon: '◲',
   },

@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import type { FormEvent } from 'react'
+import { withBasePath } from '@/lib/base-path'
 
 export function LoginScreen() {
   const [password, setPassword] = useState('')
@@ -12,7 +13,7 @@ export function LoginScreen() {
     setLoading(true)
 
     try {
-      const res = await fetch('/api/auth', {
+      const res = await fetch(withBasePath('/api/auth'), {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ password }),
@@ -71,7 +72,7 @@ export function LoginScreen() {
             Enter Password
           </h2>
           <p className="mb-6 text-center text-sm text-primary-600">
-            This workspace is password-protected
+            Cockpit privé de Raphaël — Hermès connecté
           </p>
 
           {/* Form */}
@@ -106,15 +107,7 @@ export function LoginScreen() {
 
         {/* Footer */}
         <p className="mt-6 text-center text-xs text-primary-500">
-          Powered by{' '}
-          <a
-            href="https://github.com/NousResearch/hermes-agent"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="text-accent-500 hover:text-accent-600 transition-colors"
-          >
-            Hermes Agent
-          </a>
+          Système privé Raphaël / Hermès — runtime connecté
         </p>
       </div>
     </div>

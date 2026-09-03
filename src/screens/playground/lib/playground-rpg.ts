@@ -3,8 +3,8 @@ import type { AvatarConfig } from './avatar-config'
 /**
  * Hermes Playground RPG data model.
  *
- * Training Grounds is the new first-run loop for the Nous Research x Kimi
- * creative hackathon build. Legacy worlds and items remain additive.
+ * Training Grounds is the private first-run loop for the Raphaël / Hermès
+ * cockpit build. Legacy worlds and items remain additive.
  */
 
 export type PlaygroundWorldId = 'training' | 'agora' | 'forge' | 'grove' | 'oracle' | 'arena'

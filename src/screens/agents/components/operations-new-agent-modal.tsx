@@ -208,10 +208,10 @@ export function OperationsNewAgentModal({
             </div>
             <div>
               <h2 className="text-xl font-semibold text-[var(--theme-text)]">
-                New Agent
+                New worker profile
               </h2>
               <p className="mt-1 text-sm text-[var(--theme-muted-2)]">
-                Add a persistent Operations agent to the roster.
+                Create a separate Hermes profile for a bounded worker. This does not replace Hermès principal.
               </p>
             </div>
           </div>
@@ -226,7 +226,7 @@ export function OperationsNewAgentModal({
 
         <div className="mt-6 space-y-2">
           <span className="text-sm font-medium text-[var(--theme-text)]">
-            Start from a template
+            Start from a worker template
           </span>
           <div className="flex flex-wrap gap-2">
             {PRESET_OPTIONS.map((preset) => (
@@ -247,8 +247,7 @@ export function OperationsNewAgentModal({
             ))}
           </div>
           <p className="text-xs text-[var(--theme-muted)]">
-            Templates fill in emoji, description, and system prompt. You can edit
-            everything before creating.
+            Templates create a specialized worker prompt. Hermès principal stays the central son/runtime.
           </p>
         </div>
 
@@ -258,7 +257,7 @@ export function OperationsNewAgentModal({
             <input
               value={name}
               onChange={(event) => setName(event.target.value)}
-              placeholder="Sage"
+              placeholder="Researcher"
               className="w-full rounded-2xl border border-[var(--theme-border)] bg-[var(--theme-bg)] px-4 py-3 text-sm text-[var(--theme-text)] outline-none placeholder:text-[var(--theme-muted)] focus:border-[var(--theme-accent)]"
             />
           </label>
@@ -284,19 +283,19 @@ export function OperationsNewAgentModal({
           <input
             value={description}
             onChange={(event) => setDescription(event.target.value)}
-            placeholder="X/Twitter growth agent"
+            placeholder="Specialized worker for one mission type"
             className="w-full rounded-2xl border border-[var(--theme-border)] bg-[var(--theme-bg)] px-4 py-3 text-sm text-[var(--theme-text)] outline-none placeholder:text-[var(--theme-muted)] focus:border-[var(--theme-accent)]"
           />
         </label>
 
         <label className="mt-4 block space-y-2">
           <span className="text-sm font-medium text-[var(--theme-text)]">
-            System Prompt
+            Worker system prompt
           </span>
           <textarea
             value={systemPrompt}
             onChange={(event) => setSystemPrompt(event.target.value)}
-            placeholder="You are Sage, an expert..."
+            placeholder="You are a bounded worker profile under Hermès principal..."
             className="min-h-[180px] w-full rounded-2xl border border-[var(--theme-border)] bg-[var(--theme-bg)] px-4 py-3 text-sm text-[var(--theme-text)] outline-none placeholder:text-[var(--theme-muted)] focus:border-[var(--theme-accent)]"
           />
         </label>
@@ -322,7 +321,7 @@ export function OperationsNewAgentModal({
             }
             disabled={isSaving || !name.trim()}
           >
-            {isSaving ? 'Creating…' : 'Create Agent'}
+            {isSaving ? 'Creating…' : 'Create worker profile'}
           </Button>
         </div>
       </div>

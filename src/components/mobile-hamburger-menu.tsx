@@ -36,7 +36,7 @@ export const MOBILE_HAMBURGER_NAV_ITEMS = [
   },
   {
     id: 'operations',
-    label: 'Assistants',
+    label: 'Hermès',
     icon: UserMultipleIcon,
     to: '/operations',
     match: (p: string) => p.startsWith('/operations'),

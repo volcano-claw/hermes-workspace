@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react'
 import type { AuthStatus } from '@/lib/claude-auth'
 import { writeTextToClipboard } from '@/lib/clipboard'
 import { fetchClaudeAuthStatus } from '@/lib/claude-auth'
+import { withBasePath } from '@/lib/base-path'
 
 const POLL_INTERVAL_MS = 2_000
 const FAILURE_REVEAL_MS = 5_000
@@ -24,25 +25,24 @@ function getSetupSteps(
 ): Array<{ title: string; command: string; note?: string }> {
   return [
     {
-      title: 'Use any OpenAI-compatible backend',
-      command: 'Set HERMES_API_URL to your backend base URL',
-      note: 'Portable chat works with any backend that exposes /v1/chat/completions (Ollama, LiteLLM, vLLM, etc.)',
+      title: 'Runtime privé Raphaël',
+      command: 'HERMES_API_URL=http://hermes:8642',
+      note: 'Ce Workspace doit parler au Hermes central de Raphaël, pas à un assistant générique séparé.',
     },
     {
-      title: 'Optional: install Hermes Agent locally',
-      command:
-        'curl -fsSL https://raw.githubusercontent.com/NousResearch/hermes-agent/main/scripts/install.sh | bash',
-      note: 'Vanilla hermes-agent unlocks sessions, skills, memory, jobs, and config automatically — no fork required',
+      title: 'Connexion Hermès central',
+      command: 'Vérifier le conteneur hermes et API_SERVER_KEY',
+      note: 'Le socle open-source reste Hermes Agent, mais cette instance est le système privé de Raphaël.',
     },
     {
-      title: 'Set up your agent',
-      command: 'hermes setup',
-      note: 'Pick your providers once; Hermes Agent stores them under ~/.hermes',
+      title: 'Profil Hermès',
+      command: 'HERMES_HOME=/opt/data',
+      note: 'Mémoire, skills, sessions, jobs et vault doivent venir du runtime maison.',
     },
     {
-      title: 'Start the gateway',
+      title: 'Gateway interne',
       command: 'hermes gateway run',
-      note: 'This starts the HTTP API on :8642 for the workspace',
+      note: 'API interne sur :8642; aucune configuration provider/modèle depuis ce panneau sans GO.',
     },
   ]
 }
@@ -100,7 +100,7 @@ export function ConnectionStartupScreen({ onConnected }: Props) {
       if (autoStartFired || isDone.current) return
       autoStartFired = true
       try {
-        const res = await fetch('/api/start-claude', {
+        const res = await fetch(withBasePath('/api/start-claude'), {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
         })
@@ -169,9 +169,9 @@ export function ConnectionStartupScreen({ onConnected }: Props) {
   const handleAutoStart = async () => {
     setServerStarting(true)
     setServerError(null)
-    setServerLog(['Looking for hermes-agent...'])
+    setServerLog(['Looking for Hermes runtime...'])
     try {
-      const res = await fetch('/api/start-claude', {
+      const res = await fetch(withBasePath('/api/start-claude'), {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
       })
@@ -193,7 +193,7 @@ export function ConnectionStartupScreen({ onConnected }: Props) {
         return
       }
 
-      const msg = String(data.error || 'Could not find hermes-agent')
+      const msg = String(data.error || 'Could not find Hermes runtime')
       const hint = data.hint ? String(data.hint) : ''
       setServerLog([`Error: ${msg}`])
       if (hint) setServerLog((prev) => [...prev, `Hint: ${hint}`])

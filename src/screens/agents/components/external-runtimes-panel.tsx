@@ -1,6 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { Button } from '@/components/ui/button'
 import { toast } from '@/components/ui/toast'
+import { withBasePath } from '@/lib/base-path'
 
 type RuntimeStatus =
   | 'online'
@@ -70,7 +71,7 @@ function statusLabel(runtime: ExternalRuntime): string {
 }
 
 async function readExternalAgents(): Promise<ExternalAgentsResponse> {
-  const response = await fetch('/api/external-agents')
+  const response = await fetch(withBasePath('/api/external-agents'))
   const payload = (await response
     .json()
     .catch(() => ({}))) as ExternalAgentsResponse
@@ -81,7 +82,7 @@ async function readExternalAgents(): Promise<ExternalAgentsResponse> {
 }
 
 async function testExternalAgent(runtimeId: string): Promise<ExternalRuntime> {
-  const response = await fetch('/api/external-agents', {
+  const response = await fetch(withBasePath('/api/external-agents'), {
     method: 'POST',
     headers: { 'content-type': 'application/json' },
     body: JSON.stringify({ runtimeId }),

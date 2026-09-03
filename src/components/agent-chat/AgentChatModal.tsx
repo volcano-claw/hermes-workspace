@@ -11,6 +11,7 @@ import {
   readError,
   textFromMessage,
 } from '@/screens/chat/utils'
+import { withBasePath } from '@/lib/base-path'
 
 type AgentChatModalProps = {
   open: boolean
@@ -110,7 +111,7 @@ export function AgentChatModal({
           messagesRef.current.length === 0 ? true : current,
         )
         const query = new URLSearchParams({ sessionKey, limit: '150' })
-        const response = await fetch(`/api/history?${query.toString()}`)
+        const response = await fetch(withBasePath(`/api/history?${query.toString()}`))
         if (!response.ok) {
           throw new Error(await readError(response))
         }

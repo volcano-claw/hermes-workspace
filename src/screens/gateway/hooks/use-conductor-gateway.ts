@@ -3,6 +3,7 @@ import { useMutation, useQuery } from '@tanstack/react-query'
 import type { Dispatch, SetStateAction } from 'react'
 import type { GatewaySession } from '@/lib/gateway-api'
 import { fetchSessions } from '@/lib/gateway-api'
+import { withBasePath } from '@/lib/base-path'
 
 type HistoryMessagePart = {
   type?: string
@@ -745,7 +746,7 @@ function buildMissionOutputText(workers: Array<ConductorWorker>, workerOutputs: 
 }
 
 async function fetchWorkerOutput(sessionKey: string, limit = 5): Promise<string> {
-  const response = await fetch(`/api/history?sessionKey=${encodeURIComponent(sessionKey)}&limit=${limit}`)
+  const response = await fetch(withBasePath(`/api/history?sessionKey=${encodeURIComponent(sessionKey)}&limit=${limit}`))
   const payload = (await response.json().catch(() => ({}))) as HistoryResponse
   if (!response.ok) {
     throw new Error(payload.error || `Failed to load history for ${sessionKey}`)
@@ -786,7 +787,7 @@ async function streamPortableConductorMission(params: {
   onText: (text: string) => void
   onStreamEvent: (event: StreamEvent) => void
 }): Promise<PortableStreamResult> {
-  const response = await fetch('/api/send-stream', {
+  const response = await fetch(withBasePath('/api/send-stream'), {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({

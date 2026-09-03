@@ -94,10 +94,10 @@ export function OperationsScreen() {
             </div>
             <div>
               <h1 className="text-base font-semibold text-primary-900">
-                Assistants
+                Hermès & worker profiles
               </h1>
               <p className="mt-1 text-sm text-primary-600">
-                Hermes principal, profils persistants, modèles et defaults
+                Hermès principal connecté + profils travailleurs séparés
               </p>
             </div>
           </div>
@@ -107,7 +107,7 @@ export function OperationsScreen() {
               onClick={() => setNewAgentOpen(true)}
             >
               <HugeiconsIcon icon={PlusSignIcon} size={16} strokeWidth={1.8} />
-              New Assistant
+              New worker profile
             </Button>
             <Button
               variant="secondary"
@@ -126,7 +126,7 @@ export function OperationsScreen() {
 
         {isLoading ? (
           <section className="rounded-3xl border border-[var(--theme-border)] bg-[var(--theme-card)] px-6 py-12 text-center text-sm text-[var(--theme-muted)] shadow-[0_24px_80px_var(--theme-shadow)]">
-            Loading assistants…
+            Loading Hermès profiles…
           </section>
         ) : error ? (
           <section className="rounded-3xl border border-[var(--theme-danger-border)] bg-[var(--theme-danger-soft)] px-6 py-12 text-center text-sm text-[var(--theme-text)] shadow-[0_24px_80px_var(--theme-shadow)]">
@@ -136,7 +136,7 @@ export function OperationsScreen() {
           <>
             <div className="flex items-center justify-between rounded-xl border border-primary-200 bg-primary-50/60 px-4 py-3 text-sm">
               <span className="text-primary-600">
-                {agents.length} configured assistant
+                {agents.length} Hermes/profile card
                 {agents.length === 1 ? '' : 's'}
               </span>
               <span className="text-primary-500">
@@ -173,7 +173,7 @@ export function OperationsScreen() {
                   className="text-[var(--theme-muted)]"
                 />
                 <span className="mt-3 text-sm text-[var(--theme-muted)]">
-                  Add Assistant
+                  Add worker profile
                 </span>
               </motion.button>
             </section>

@@ -976,8 +976,8 @@ function TitleScreen({
               }}
             >
               <span style={{ color: '#facc15' }}>✦</span>
-              Hermes Agent Realm
-              <span className="opacity-60">· Nous Research × Kimi</span>
+              Hermès privé
+              <span className="opacity-60">· Raphaël / Hermès</span>
             </div>
             <img
               src="/assets/hermesworld/art/hermesworld-logo-horizontal.svg"
