@@ -165,6 +165,10 @@ function readString(value: unknown): string {
   return typeof value === 'string' ? value.trim() : ''
 }
 
+function isExplicitWorkspaceEnvSource(source: string): boolean {
+  return source === 'env.HERMES_WORKSPACE_DIR' || source === 'env.CLAUDE_WORKSPACE_DIR'
+}
+
 async function firstValidDirectory(
   candidates: Array<{ path: string; source: string; create?: boolean }>,
 ): Promise<{ path: string; source: string } | null> {
@@ -179,7 +183,11 @@ async function firstValidDirectory(
         // Continue to next candidate.
       }
     }
-    if (isHermesStatePath(resolved) || isBlockedSystemPath(resolved)) continue
+    if (
+      (isHermesStatePath(resolved) && !isExplicitWorkspaceEnvSource(candidate.source)) ||
+      isBlockedSystemPath(resolved)
+    )
+      continue
     if (await isValidDirectory(resolved)) {
       return { path: resolved, source: candidate.source }
     }
@@ -201,6 +209,10 @@ function activeProfileHome(): string {
 }
 
 function workspaceStateDir(): string {
+  const writableRoot =
+    process.env.HERMES_WORKSPACE_STATE_HOME?.trim() ||
+    process.env.HERMES_WORKSPACE_TASKS_HOME?.trim()
+  if (writableRoot) return path.join(normalizeCandidate(writableRoot), 'webui_state')
   return path.join(activeProfileHome(), 'webui_state')
 }
 
@@ -258,8 +270,8 @@ async function configuredDefaultWorkspace(): Promise<{
       : ''
 
   return firstValidDirectory([
-    { path: process.env.HERMES_WORKSPACE_DIR ?? '', source: 'env' },
-    { path: process.env.CLAUDE_WORKSPACE_DIR ?? '', source: 'env' },
+    { path: process.env.HERMES_WORKSPACE_DIR ?? '', source: 'env.HERMES_WORKSPACE_DIR' },
+    { path: process.env.CLAUDE_WORKSPACE_DIR ?? '', source: 'env.CLAUDE_WORKSPACE_DIR' },
     { path: process.env.HERMES_WEBUI_DEFAULT_WORKSPACE ?? '', source: 'env' },
     { path: readString(cfg.workspace), source: 'config.workspace' },
     {
@@ -270,8 +282,12 @@ async function configuredDefaultWorkspace(): Promise<{
     { path: path.join(os.homedir(), 'workspace'), source: 'home.workspace' },
     { path: path.join(os.homedir(), 'work'), source: 'home.work' },
     {
-      path: path.join(os.homedir(), 'workspace'),
-      source: 'home.workspace.created',
+      path: process.env.HERMES_WORKSPACE_TASKS_HOME
+        ? path.join(process.env.HERMES_WORKSPACE_TASKS_HOME, 'runtime')
+        : path.join(os.homedir(), 'workspace'),
+      source: process.env.HERMES_WORKSPACE_TASKS_HOME
+        ? 'workspace-tasks.runtime.created'
+        : 'home.workspace.created',
       create: true,
     },
   ])
@@ -327,7 +343,9 @@ export async function loadWorkspaceCatalog(): Promise<WorkspaceDetectionResponse
       return {
         path: envWorkspace,
         folderName: extractFolderName(envWorkspace),
-        source: 'env',
+        source: process.env.HERMES_WORKSPACE_DIR?.trim()
+          ? 'env.HERMES_WORKSPACE_DIR'
+          : 'env.CLAUDE_WORKSPACE_DIR',
         isValid: true,
         workspaces,
         last: envWorkspace,

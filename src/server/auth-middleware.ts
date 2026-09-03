@@ -23,10 +23,14 @@ interface SessionStore {
   tokens: Record<string, number> // token -> expiry unix-ms
 }
 
-const STORE_FILE = join(
-  process.env.HERMES_HOME ?? process.env.CLAUDE_HOME ?? join(homedir(), '.hermes'),
-  'workspace-sessions.json',
-)
+const STORE_ROOT =
+  process.env.HERMES_WORKSPACE_STATE_HOME ??
+  process.env.HERMES_WORKSPACE_TASKS_HOME ??
+  process.env.HERMES_HOME ??
+  process.env.CLAUDE_HOME ??
+  join(homedir(), '.hermes')
+
+const STORE_FILE = join(STORE_ROOT, 'workspace-sessions.json')
 const TOKEN_TTL_MS = 30 * 24 * 60 * 60 * 1000 // 30 days
 
 function loadStore(): SessionStore {
