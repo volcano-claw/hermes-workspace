@@ -13,6 +13,18 @@ type ConnectionStatus = {
   chatMode: 'enhanced-claude' | 'portable' | 'disconnected'
   capabilities: Record<string, boolean>
   claudeUrl: string
+  operatorCockpitStatus?: {
+    reachable: boolean
+    ok: boolean
+    phaseClosureStatus: string | null
+    localControlPlaneClosed: boolean
+    openIncidents: number | null
+    goStopGates: number | null
+    writeActionsEnabled: false
+    deployAllowedWithoutGo: false
+    peerDispatchAllowedWithoutGo: false
+    summary: string
+  }
 }
 
 async function fetchConnectionStatus(): Promise<ConnectionStatus> {
@@ -31,6 +43,7 @@ async function fetchConnectionStatus(): Promise<ConnectionStatus> {
       chatMode: 'disconnected',
       capabilities: {},
       claudeUrl: '',
+      operatorCockpitStatus: undefined,
     }
   }
   return response.json() as Promise<ConnectionStatus>
@@ -87,6 +100,28 @@ function buildTooltip(
     parts.push('Hermes Agent gateway enhancements detected')
   }
   if (data.activeModel) parts.push(`Model: ${data.activeModel}`)
+  const operator = data.operatorCockpitStatus
+  if (operator) {
+    if (operator.reachable) {
+      parts.push(
+        operator.ok
+          ? 'Operator cockpit: OK'
+          : 'Operator cockpit: attention',
+      )
+      if (operator.phaseClosureStatus) {
+        parts.push(`Operator phases: ${operator.phaseClosureStatus}`)
+      }
+      if (operator.openIncidents !== null) {
+        parts.push(`Operator incidents: ${operator.openIncidents}`)
+      }
+      if (operator.goStopGates !== null) {
+        parts.push(`GO/STOP gates: ${operator.goStopGates}`)
+      }
+    } else {
+      parts.push('Operator cockpit: unavailable')
+    }
+    parts.push('Operator actions: read-only')
+  }
   return parts.join(' · ')
 }
 

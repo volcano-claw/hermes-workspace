@@ -20,6 +20,8 @@ export type WidgetId =
   | 'sessions_intelligence'
   | 'logs_tail'
   | 'operator_tip'
+  | 'operator_cockpit'
+  | 'operator_agent_society'
   | 'skills_usage'
   | 'achievements'
   | 'mix_rhythm'
@@ -105,6 +107,22 @@ export const WIDGET_CATALOG: ReadonlyArray<WidgetMeta> = [
     hideable: true,
   },
   {
+    id: 'operator_cockpit',
+    label: 'Operator cockpit',
+    description:
+      'Read-only Operator phase, incidents, GO/STOP gates, and guardrails.',
+    column: 'rail',
+    hideable: true,
+  },
+  {
+    id: 'operator_agent_society',
+    label: 'Operator agent society',
+    description:
+      'Read-only planned Operator agent lanes, bindings, cells, and dispatch locks.',
+    column: 'rail',
+    hideable: true,
+  },
+  {
     id: 'skills_usage',
     label: 'Skills usage',
     description: 'Top-5 used skills as a bar chart.',
@@ -171,9 +189,7 @@ function readLayout(): StoredLayout {
     }
     const valid = new Set<WidgetId>(WIDGET_CATALOG.map((w) => w.id))
     const incoming = Array.isArray(parsed.hidden) ? parsed.hidden : []
-    const filtered = incoming.filter((id): id is WidgetId =>
-      valid.has(id as WidgetId),
-    )
+    const filtered = incoming.filter((id): id is WidgetId => valid.has(id))
     // Schema migration: when we introduce new widgets that should be
     // off-by-default, bump STORAGE_VERSION and union the prior user
     // hides with the new defaults so existing installs don't suddenly

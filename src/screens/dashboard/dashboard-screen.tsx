@@ -40,9 +40,13 @@ import { TopModelsCard } from './components/top-models-card'
 import { VelocityCard } from './components/velocity-card'
 import { WidgetShell } from './components/widget-shell'
 import { normalizeDashboardSessionsPayload } from './lib/sessions-query'
+import { OperatorAgentSocietyCard } from './operator/operator-agent-society-card'
+import { OperatorCockpitCard } from './operator/operator-cockpit-card'
 import { useDashboardLayout } from './lib/use-dashboard-layout'
 import type { SessionRowData } from './components/sessions-intelligence-card'
 import type { AnalyticsPeriod } from './components/analytics-chart-card'
+import type { OperatorCockpitConnectionStatus } from './operator/operator-cockpit-card'
+import type { OperatorAgentSocietyConnectionStatus } from './operator/operator-agent-society-card'
 import type { ReactNode } from 'react'
 import type { ClaudeSession } from '@/server/claude-api'
 import type { DashboardOverview } from '@/server/dashboard-aggregator'
@@ -821,6 +825,20 @@ export function DashboardScreen() {
   })
   const overview = overviewQuery.data ?? null
 
+  const operatorStatusQuery = useQuery<
+    OperatorCockpitConnectionStatus & OperatorAgentSocietyConnectionStatus
+  >({
+    queryKey: ['dashboard', 'operator-cockpit-status'],
+    queryFn: async () => {
+      const res = await fetch('/api/connection-status')
+      if (!res.ok) throw new Error(`connection-status ${res.status}`)
+      return (await res.json()) as OperatorCockpitConnectionStatus
+    },
+    staleTime: 5_000,
+    refetchInterval: 30_000,
+    retry: false,
+  })
+
   const palette = useDashboardPalette()
 
   const updateSettings = useSettingsStore((state) => state.updateSettings)
@@ -1171,6 +1189,16 @@ export function DashboardScreen() {
             stretch the rail to match Sessions Intelligence height so
             we don't get the dangling gap Eric flagged in iter 007. */}
         <div className="flex min-h-full flex-col gap-3 lg:col-span-4">
+          <WidgetShell id="operator_cockpit" layout={layout}>
+            <OperatorCockpitCard
+              status={operatorStatusQuery.data?.operatorCockpitStatus}
+            />
+          </WidgetShell>
+          <WidgetShell id="operator_agent_society" layout={layout}>
+            <OperatorAgentSocietyCard
+              society={operatorStatusQuery.data?.operatorAgentSociety}
+            />
+          </WidgetShell>
           <WidgetShell id="achievements" layout={layout}>
             <AchievementsCard
               achievements={overview?.achievements ?? null}

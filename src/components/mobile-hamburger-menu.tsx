@@ -77,6 +77,20 @@ export const MOBILE_HAMBURGER_NAV_ITEMS = [
     match: (p: string) => p.startsWith('/jobs'),
   },
   {
+    id: 'system',
+    label: 'System',
+    icon: Settings01Icon,
+    to: '/system',
+    match: (p: string) => p.startsWith('/system'),
+  },
+  {
+    id: 'operator',
+    label: 'Operator',
+    icon: Rocket01Icon,
+    to: '/operator',
+    match: (p: string) => p.startsWith('/operator'),
+  },
+  {
     id: 'echo-studio',
     label: 'Echo Studio',
     icon: Rocket01Icon,

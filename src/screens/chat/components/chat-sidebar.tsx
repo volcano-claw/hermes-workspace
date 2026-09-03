@@ -141,7 +141,6 @@ type ChatSidebarProps = {
 type NavItemDef = {
   kind: 'link' | 'button'
   to?: string
-  search?: Record<string, unknown>
   hash?: string
   icon: unknown
   label: string
@@ -255,7 +254,6 @@ function NavItem({
               render={
                 <Link
                   to={item.to}
-                  search={item.search}
                   hash={item.hash}
                   onClick={handleSelect}
                   className={cls}
@@ -273,7 +271,6 @@ function NavItem({
     return (
       <Link
         to={item.to}
-        search={item.search}
         hash={item.hash}
         onClick={handleSelect}
         className={cls}
@@ -741,6 +738,9 @@ function ChatSidebarComponent({
   const isMemoryActive = pathname === '/memory'
   const isTasksActive = pathname === '/tasks'
   const isConductorActive = pathname === '/conductor'
+  const isOperatorActive = pathname.startsWith('/operator')
+  const isSystemActive = pathname.startsWith('/system')
+  const isJarvisActive = pathname === '/jarvis'
   const isOperationsActive = pathname === '/operations'
   const isSwarmActive = pathname === '/swarm' || pathname === '/swarm2'
   const echoStudioEnabled = useSettingsStore(
@@ -1001,6 +1001,27 @@ function ChatSidebarComponent({
       icon: Clock01Icon,
       label: t('nav.jobs'),
       active: isJobsActive,
+    },
+    {
+      kind: 'link',
+      to: '/system',
+      icon: Settings01Icon,
+      label: 'System',
+      active: isSystemActive,
+    },
+    {
+      kind: 'link',
+      to: '/operator',
+      icon: Rocket01Icon,
+      label: 'Operator',
+      active: isOperatorActive,
+    },
+    {
+      kind: 'link',
+      to: '/jarvis',
+      icon: Rocket01Icon,
+      label: 'Jarvis',
+      active: isJarvisActive,
     },
     {
       kind: 'link',

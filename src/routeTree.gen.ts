@@ -13,6 +13,7 @@ import { Route as WorldRouteImport } from './routes/world'
 import { Route as VtCapitalRouteImport } from './routes/vt-capital'
 import { Route as TerminalRouteImport } from './routes/terminal'
 import { Route as TasksRouteImport } from './routes/tasks'
+import { Route as SystemRouteImport } from './routes/system'
 import { Route as Swarm2RouteImport } from './routes/swarm2'
 import { Route as SwarmRouteImport } from './routes/swarm'
 import { Route as SkillsRouteImport } from './routes/skills'
@@ -20,10 +21,12 @@ import { Route as SettingsRouteImport } from './routes/settings'
 import { Route as ReserveRouteImport } from './routes/reserve'
 import { Route as ProfilesRouteImport } from './routes/profiles'
 import { Route as PlaygroundRouteImport } from './routes/playground'
+import { Route as OperatorRouteImport } from './routes/operator'
 import { Route as OperationsRouteImport } from './routes/operations'
 import { Route as MemoryRouteImport } from './routes/memory'
 import { Route as McpRouteImport } from './routes/mcp'
 import { Route as JobsRouteImport } from './routes/jobs'
+import { Route as JarvisRouteImport } from './routes/jarvis'
 import { Route as HermesWorldRouteImport } from './routes/hermes-world'
 import { Route as FilesRouteImport } from './routes/files'
 import { Route as EchoStudioRouteImport } from './routes/echo-studio'
@@ -46,6 +49,7 @@ import { Route as ApiTerminalResizeRouteImport } from './routes/api/terminal-res
 import { Route as ApiTerminalInputRouteImport } from './routes/api/terminal-input'
 import { Route as ApiTerminalCloseRouteImport } from './routes/api/terminal-close'
 import { Route as ApiSystemMetricsRouteImport } from './routes/api/system-metrics'
+import { Route as ApiSystemCockpitRouteImport } from './routes/api/system-cockpit'
 import { Route as ApiSwarmTmuxStopRouteImport } from './routes/api/swarm-tmux-stop'
 import { Route as ApiSwarmTmuxStartRouteImport } from './routes/api/swarm-tmux-start'
 import { Route as ApiSwarmTmuxScrollRouteImport } from './routes/api/swarm-tmux-scroll'
@@ -86,6 +90,7 @@ import { Route as ApiMemoryRouteImport } from './routes/api/memory'
 import { Route as ApiMediaRouteImport } from './routes/api/media'
 import { Route as ApiMcpRouteImport } from './routes/api/mcp'
 import { Route as ApiLocalProvidersRouteImport } from './routes/api/local-providers'
+import { Route as ApiJarvisRouteImport } from './routes/api/jarvis'
 import { Route as ApiIntegrationsRouteImport } from './routes/api/integrations'
 import { Route as ApiHistoryRouteImport } from './routes/api/history'
 import { Route as ApiHermesTasksRouteImport } from './routes/api/hermes-tasks'
@@ -196,6 +201,11 @@ const TasksRoute = TasksRouteImport.update({
   path: '/tasks',
   getParentRoute: () => rootRouteImport,
 } as any)
+const SystemRoute = SystemRouteImport.update({
+  id: '/system',
+  path: '/system',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const Swarm2Route = Swarm2RouteImport.update({
   id: '/swarm2',
   path: '/swarm2',
@@ -231,6 +241,11 @@ const PlaygroundRoute = PlaygroundRouteImport.update({
   path: '/playground',
   getParentRoute: () => rootRouteImport,
 } as any)
+const OperatorRoute = OperatorRouteImport.update({
+  id: '/operator',
+  path: '/operator',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const OperationsRoute = OperationsRouteImport.update({
   id: '/operations',
   path: '/operations',
@@ -249,6 +264,11 @@ const McpRoute = McpRouteImport.update({
 const JobsRoute = JobsRouteImport.update({
   id: '/jobs',
   path: '/jobs',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const JarvisRoute = JarvisRouteImport.update({
+  id: '/jarvis',
+  path: '/jarvis',
   getParentRoute: () => rootRouteImport,
 } as any)
 const HermesWorldRoute = HermesWorldRouteImport.update({
@@ -359,6 +379,11 @@ const ApiTerminalCloseRoute = ApiTerminalCloseRouteImport.update({
 const ApiSystemMetricsRoute = ApiSystemMetricsRouteImport.update({
   id: '/api/system-metrics',
   path: '/api/system-metrics',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiSystemCockpitRoute = ApiSystemCockpitRouteImport.update({
+  id: '/api/system-cockpit',
+  path: '/api/system-cockpit',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ApiSwarmTmuxStopRoute = ApiSwarmTmuxStopRouteImport.update({
@@ -560,6 +585,11 @@ const ApiMcpRoute = ApiMcpRouteImport.update({
 const ApiLocalProvidersRoute = ApiLocalProvidersRouteImport.update({
   id: '/api/local-providers',
   path: '/api/local-providers',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiJarvisRoute = ApiJarvisRouteImport.update({
+  id: '/api/jarvis',
+  path: '/api/jarvis',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ApiIntegrationsRoute = ApiIntegrationsRouteImport.update({
@@ -1029,10 +1059,12 @@ export interface FileRoutesByFullPath {
   '/echo-studio': typeof EchoStudioRoute
   '/files': typeof FilesRoute
   '/hermes-world': typeof HermesWorldRoute
+  '/jarvis': typeof JarvisRoute
   '/jobs': typeof JobsRoute
   '/mcp': typeof McpRoute
   '/memory': typeof MemoryRoute
   '/operations': typeof OperationsRoute
+  '/operator': typeof OperatorRoute
   '/playground': typeof PlaygroundRoute
   '/profiles': typeof ProfilesRoute
   '/reserve': typeof ReserveRouteWithChildren
@@ -1040,6 +1072,7 @@ export interface FileRoutesByFullPath {
   '/skills': typeof SkillsRoute
   '/swarm': typeof SwarmRoute
   '/swarm2': typeof Swarm2Route
+  '/system': typeof SystemRoute
   '/tasks': typeof TasksRoute
   '/terminal': typeof TerminalRoute
   '/vt-capital': typeof VtCapitalRoute
@@ -1072,6 +1105,7 @@ export interface FileRoutesByFullPath {
   '/api/hermes-tasks': typeof ApiHermesTasksRouteWithChildren
   '/api/history': typeof ApiHistoryRoute
   '/api/integrations': typeof ApiIntegrationsRoute
+  '/api/jarvis': typeof ApiJarvisRoute
   '/api/local-providers': typeof ApiLocalProvidersRoute
   '/api/mcp': typeof ApiMcpRouteWithChildren
   '/api/media': typeof ApiMediaRoute
@@ -1112,6 +1146,7 @@ export interface FileRoutesByFullPath {
   '/api/swarm-tmux-scroll': typeof ApiSwarmTmuxScrollRoute
   '/api/swarm-tmux-start': typeof ApiSwarmTmuxStartRoute
   '/api/swarm-tmux-stop': typeof ApiSwarmTmuxStopRoute
+  '/api/system-cockpit': typeof ApiSystemCockpitRoute
   '/api/system-metrics': typeof ApiSystemMetricsRoute
   '/api/terminal-close': typeof ApiTerminalCloseRoute
   '/api/terminal-input': typeof ApiTerminalInputRoute
@@ -1197,16 +1232,19 @@ export interface FileRoutesByTo {
   '/echo-studio': typeof EchoStudioRoute
   '/files': typeof FilesRoute
   '/hermes-world': typeof HermesWorldRoute
+  '/jarvis': typeof JarvisRoute
   '/jobs': typeof JobsRoute
   '/mcp': typeof McpRoute
   '/memory': typeof MemoryRoute
   '/operations': typeof OperationsRoute
+  '/operator': typeof OperatorRoute
   '/playground': typeof PlaygroundRoute
   '/profiles': typeof ProfilesRoute
   '/reserve': typeof ReserveRouteWithChildren
   '/skills': typeof SkillsRoute
   '/swarm': typeof SwarmRoute
   '/swarm2': typeof Swarm2Route
+  '/system': typeof SystemRoute
   '/tasks': typeof TasksRoute
   '/terminal': typeof TerminalRoute
   '/vt-capital': typeof VtCapitalRoute
@@ -1239,6 +1277,7 @@ export interface FileRoutesByTo {
   '/api/hermes-tasks': typeof ApiHermesTasksRouteWithChildren
   '/api/history': typeof ApiHistoryRoute
   '/api/integrations': typeof ApiIntegrationsRoute
+  '/api/jarvis': typeof ApiJarvisRoute
   '/api/local-providers': typeof ApiLocalProvidersRoute
   '/api/mcp': typeof ApiMcpRouteWithChildren
   '/api/media': typeof ApiMediaRoute
@@ -1279,6 +1318,7 @@ export interface FileRoutesByTo {
   '/api/swarm-tmux-scroll': typeof ApiSwarmTmuxScrollRoute
   '/api/swarm-tmux-start': typeof ApiSwarmTmuxStartRoute
   '/api/swarm-tmux-stop': typeof ApiSwarmTmuxStopRoute
+  '/api/system-cockpit': typeof ApiSystemCockpitRoute
   '/api/system-metrics': typeof ApiSystemMetricsRoute
   '/api/terminal-close': typeof ApiTerminalCloseRoute
   '/api/terminal-input': typeof ApiTerminalInputRoute
@@ -1365,10 +1405,12 @@ export interface FileRoutesById {
   '/echo-studio': typeof EchoStudioRoute
   '/files': typeof FilesRoute
   '/hermes-world': typeof HermesWorldRoute
+  '/jarvis': typeof JarvisRoute
   '/jobs': typeof JobsRoute
   '/mcp': typeof McpRoute
   '/memory': typeof MemoryRoute
   '/operations': typeof OperationsRoute
+  '/operator': typeof OperatorRoute
   '/playground': typeof PlaygroundRoute
   '/profiles': typeof ProfilesRoute
   '/reserve': typeof ReserveRouteWithChildren
@@ -1376,6 +1418,7 @@ export interface FileRoutesById {
   '/skills': typeof SkillsRoute
   '/swarm': typeof SwarmRoute
   '/swarm2': typeof Swarm2Route
+  '/system': typeof SystemRoute
   '/tasks': typeof TasksRoute
   '/terminal': typeof TerminalRoute
   '/vt-capital': typeof VtCapitalRoute
@@ -1408,6 +1451,7 @@ export interface FileRoutesById {
   '/api/hermes-tasks': typeof ApiHermesTasksRouteWithChildren
   '/api/history': typeof ApiHistoryRoute
   '/api/integrations': typeof ApiIntegrationsRoute
+  '/api/jarvis': typeof ApiJarvisRoute
   '/api/local-providers': typeof ApiLocalProvidersRoute
   '/api/mcp': typeof ApiMcpRouteWithChildren
   '/api/media': typeof ApiMediaRoute
@@ -1448,6 +1492,7 @@ export interface FileRoutesById {
   '/api/swarm-tmux-scroll': typeof ApiSwarmTmuxScrollRoute
   '/api/swarm-tmux-start': typeof ApiSwarmTmuxStartRoute
   '/api/swarm-tmux-stop': typeof ApiSwarmTmuxStopRoute
+  '/api/system-cockpit': typeof ApiSystemCockpitRoute
   '/api/system-metrics': typeof ApiSystemMetricsRoute
   '/api/terminal-close': typeof ApiTerminalCloseRoute
   '/api/terminal-input': typeof ApiTerminalInputRoute
@@ -1535,10 +1580,12 @@ export interface FileRouteTypes {
     | '/echo-studio'
     | '/files'
     | '/hermes-world'
+    | '/jarvis'
     | '/jobs'
     | '/mcp'
     | '/memory'
     | '/operations'
+    | '/operator'
     | '/playground'
     | '/profiles'
     | '/reserve'
@@ -1546,6 +1593,7 @@ export interface FileRouteTypes {
     | '/skills'
     | '/swarm'
     | '/swarm2'
+    | '/system'
     | '/tasks'
     | '/terminal'
     | '/vt-capital'
@@ -1578,6 +1626,7 @@ export interface FileRouteTypes {
     | '/api/hermes-tasks'
     | '/api/history'
     | '/api/integrations'
+    | '/api/jarvis'
     | '/api/local-providers'
     | '/api/mcp'
     | '/api/media'
@@ -1618,6 +1667,7 @@ export interface FileRouteTypes {
     | '/api/swarm-tmux-scroll'
     | '/api/swarm-tmux-start'
     | '/api/swarm-tmux-stop'
+    | '/api/system-cockpit'
     | '/api/system-metrics'
     | '/api/terminal-close'
     | '/api/terminal-input'
@@ -1703,16 +1753,19 @@ export interface FileRouteTypes {
     | '/echo-studio'
     | '/files'
     | '/hermes-world'
+    | '/jarvis'
     | '/jobs'
     | '/mcp'
     | '/memory'
     | '/operations'
+    | '/operator'
     | '/playground'
     | '/profiles'
     | '/reserve'
     | '/skills'
     | '/swarm'
     | '/swarm2'
+    | '/system'
     | '/tasks'
     | '/terminal'
     | '/vt-capital'
@@ -1745,6 +1798,7 @@ export interface FileRouteTypes {
     | '/api/hermes-tasks'
     | '/api/history'
     | '/api/integrations'
+    | '/api/jarvis'
     | '/api/local-providers'
     | '/api/mcp'
     | '/api/media'
@@ -1785,6 +1839,7 @@ export interface FileRouteTypes {
     | '/api/swarm-tmux-scroll'
     | '/api/swarm-tmux-start'
     | '/api/swarm-tmux-stop'
+    | '/api/system-cockpit'
     | '/api/system-metrics'
     | '/api/terminal-close'
     | '/api/terminal-input'
@@ -1870,10 +1925,12 @@ export interface FileRouteTypes {
     | '/echo-studio'
     | '/files'
     | '/hermes-world'
+    | '/jarvis'
     | '/jobs'
     | '/mcp'
     | '/memory'
     | '/operations'
+    | '/operator'
     | '/playground'
     | '/profiles'
     | '/reserve'
@@ -1881,6 +1938,7 @@ export interface FileRouteTypes {
     | '/skills'
     | '/swarm'
     | '/swarm2'
+    | '/system'
     | '/tasks'
     | '/terminal'
     | '/vt-capital'
@@ -1913,6 +1971,7 @@ export interface FileRouteTypes {
     | '/api/hermes-tasks'
     | '/api/history'
     | '/api/integrations'
+    | '/api/jarvis'
     | '/api/local-providers'
     | '/api/mcp'
     | '/api/media'
@@ -1953,6 +2012,7 @@ export interface FileRouteTypes {
     | '/api/swarm-tmux-scroll'
     | '/api/swarm-tmux-start'
     | '/api/swarm-tmux-stop'
+    | '/api/system-cockpit'
     | '/api/system-metrics'
     | '/api/terminal-close'
     | '/api/terminal-input'
@@ -2039,10 +2099,12 @@ export interface RootRouteChildren {
   EchoStudioRoute: typeof EchoStudioRoute
   FilesRoute: typeof FilesRoute
   HermesWorldRoute: typeof HermesWorldRoute
+  JarvisRoute: typeof JarvisRoute
   JobsRoute: typeof JobsRoute
   McpRoute: typeof McpRoute
   MemoryRoute: typeof MemoryRoute
   OperationsRoute: typeof OperationsRoute
+  OperatorRoute: typeof OperatorRoute
   PlaygroundRoute: typeof PlaygroundRoute
   ProfilesRoute: typeof ProfilesRoute
   ReserveRoute: typeof ReserveRouteWithChildren
@@ -2050,6 +2112,7 @@ export interface RootRouteChildren {
   SkillsRoute: typeof SkillsRoute
   SwarmRoute: typeof SwarmRoute
   Swarm2Route: typeof Swarm2Route
+  SystemRoute: typeof SystemRoute
   TasksRoute: typeof TasksRoute
   TerminalRoute: typeof TerminalRoute
   VtCapitalRoute: typeof VtCapitalRoute
@@ -2082,6 +2145,7 @@ export interface RootRouteChildren {
   ApiHermesTasksRoute: typeof ApiHermesTasksRouteWithChildren
   ApiHistoryRoute: typeof ApiHistoryRoute
   ApiIntegrationsRoute: typeof ApiIntegrationsRoute
+  ApiJarvisRoute: typeof ApiJarvisRoute
   ApiLocalProvidersRoute: typeof ApiLocalProvidersRoute
   ApiMcpRoute: typeof ApiMcpRouteWithChildren
   ApiMediaRoute: typeof ApiMediaRoute
@@ -2122,6 +2186,7 @@ export interface RootRouteChildren {
   ApiSwarmTmuxScrollRoute: typeof ApiSwarmTmuxScrollRoute
   ApiSwarmTmuxStartRoute: typeof ApiSwarmTmuxStartRoute
   ApiSwarmTmuxStopRoute: typeof ApiSwarmTmuxStopRoute
+  ApiSystemCockpitRoute: typeof ApiSystemCockpitRoute
   ApiSystemMetricsRoute: typeof ApiSystemMetricsRoute
   ApiTerminalCloseRoute: typeof ApiTerminalCloseRoute
   ApiTerminalInputRoute: typeof ApiTerminalInputRoute
@@ -2195,6 +2260,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof TasksRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/system': {
+      id: '/system'
+      path: '/system'
+      fullPath: '/system'
+      preLoaderRoute: typeof SystemRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/swarm2': {
       id: '/swarm2'
       path: '/swarm2'
@@ -2244,6 +2316,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof PlaygroundRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/operator': {
+      id: '/operator'
+      path: '/operator'
+      fullPath: '/operator'
+      preLoaderRoute: typeof OperatorRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/operations': {
       id: '/operations'
       path: '/operations'
@@ -2270,6 +2349,13 @@ declare module '@tanstack/react-router' {
       path: '/jobs'
       fullPath: '/jobs'
       preLoaderRoute: typeof JobsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/jarvis': {
+      id: '/jarvis'
+      path: '/jarvis'
+      fullPath: '/jarvis'
+      preLoaderRoute: typeof JarvisRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/hermes-world': {
@@ -2424,6 +2510,13 @@ declare module '@tanstack/react-router' {
       path: '/api/system-metrics'
       fullPath: '/api/system-metrics'
       preLoaderRoute: typeof ApiSystemMetricsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/system-cockpit': {
+      id: '/api/system-cockpit'
+      path: '/api/system-cockpit'
+      fullPath: '/api/system-cockpit'
+      preLoaderRoute: typeof ApiSystemCockpitRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/swarm-tmux-stop': {
@@ -2704,6 +2797,13 @@ declare module '@tanstack/react-router' {
       path: '/api/local-providers'
       fullPath: '/api/local-providers'
       preLoaderRoute: typeof ApiLocalProvidersRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/jarvis': {
+      id: '/api/jarvis'
+      path: '/api/jarvis'
+      fullPath: '/api/jarvis'
+      preLoaderRoute: typeof ApiJarvisRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/integrations': {
@@ -3584,10 +3684,12 @@ const rootRouteChildren: RootRouteChildren = {
   EchoStudioRoute: EchoStudioRoute,
   FilesRoute: FilesRoute,
   HermesWorldRoute: HermesWorldRoute,
+  JarvisRoute: JarvisRoute,
   JobsRoute: JobsRoute,
   McpRoute: McpRoute,
   MemoryRoute: MemoryRoute,
   OperationsRoute: OperationsRoute,
+  OperatorRoute: OperatorRoute,
   PlaygroundRoute: PlaygroundRoute,
   ProfilesRoute: ProfilesRoute,
   ReserveRoute: ReserveRouteWithChildren,
@@ -3595,6 +3697,7 @@ const rootRouteChildren: RootRouteChildren = {
   SkillsRoute: SkillsRoute,
   SwarmRoute: SwarmRoute,
   Swarm2Route: Swarm2Route,
+  SystemRoute: SystemRoute,
   TasksRoute: TasksRoute,
   TerminalRoute: TerminalRoute,
   VtCapitalRoute: VtCapitalRoute,
@@ -3627,6 +3730,7 @@ const rootRouteChildren: RootRouteChildren = {
   ApiHermesTasksRoute: ApiHermesTasksRouteWithChildren,
   ApiHistoryRoute: ApiHistoryRoute,
   ApiIntegrationsRoute: ApiIntegrationsRoute,
+  ApiJarvisRoute: ApiJarvisRoute,
   ApiLocalProvidersRoute: ApiLocalProvidersRoute,
   ApiMcpRoute: ApiMcpRouteWithChildren,
   ApiMediaRoute: ApiMediaRoute,
@@ -3667,6 +3771,7 @@ const rootRouteChildren: RootRouteChildren = {
   ApiSwarmTmuxScrollRoute: ApiSwarmTmuxScrollRoute,
   ApiSwarmTmuxStartRoute: ApiSwarmTmuxStartRoute,
   ApiSwarmTmuxStopRoute: ApiSwarmTmuxStopRoute,
+  ApiSystemCockpitRoute: ApiSystemCockpitRoute,
   ApiSystemMetricsRoute: ApiSystemMetricsRoute,
   ApiTerminalCloseRoute: ApiTerminalCloseRoute,
   ApiTerminalInputRoute: ApiTerminalInputRoute,

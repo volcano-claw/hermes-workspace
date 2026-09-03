@@ -35,10 +35,14 @@ type CreateTaskInput = Partial<TaskRecord> & { title: string }
 type UpdateTaskInput = Partial<Omit<TaskRecord, 'id' | 'created_at' | 'created_by'>>
 
 const CLAUDE_HOME = process.env.HERMES_HOME ?? process.env.CLAUDE_HOME ?? path.join(os.homedir(), '.hermes')
-const TASKS_FILE = path.join(CLAUDE_HOME, 'tasks.json')
+// In the VPS Workspace deployment HERMES_HOME is mounted read-only so the UI
+// can inspect the real Hermes brain without being able to mutate config,
+// memory, or state.db. Task/Kanban state therefore has its own writable volume.
+const TASKS_HOME = process.env.HERMES_WORKSPACE_TASKS_HOME ?? CLAUDE_HOME
+const TASKS_FILE = path.join(TASKS_HOME, 'tasks.json')
 
 function ensureTasksFile(): void {
-  fs.mkdirSync(CLAUDE_HOME, { recursive: true })
+  fs.mkdirSync(TASKS_HOME, { recursive: true })
   if (!fs.existsSync(TASKS_FILE)) {
     fs.writeFileSync(TASKS_FILE, JSON.stringify({ tasks: [] }, null, 2) + '\n', 'utf-8')
   }

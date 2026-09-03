@@ -14,6 +14,16 @@ import {
   getChatMode,
 } from '../../server/gateway-capabilities'
 import { isAuthenticated } from '../../server/auth-middleware'
+import { getOperatorAgentSociety } from '../../server/operator/agent-society'
+import { getOperatorCockpitStatus } from '../../server/operator/cockpit-status'
+import { getOperatorContinuityStatus } from '../../server/operator/continuity-status'
+import { getOperatorMissionExecution } from '../../server/operator/mission-execution'
+import { getOperatorDomainAccessRegistry } from '../../server/operator/domain-access-registry'
+import type { WorkspaceOperatorAgentSociety } from '../../server/operator/agent-society'
+import type { WorkspaceOperatorCockpitStatus } from '../../server/operator/cockpit-status'
+import type { WorkspaceOperatorContinuityStatus } from '../../server/operator/continuity-status'
+import type { WorkspaceOperatorMissionExecution } from '../../server/operator/mission-execution'
+import type { WorkspaceOperatorDomainAccessRegistry } from '../../server/operator/domain-access-registry'
 
 const CONFIG_PATH = path.join(
   process.env.HERMES_HOME ?? process.env.CLAUDE_HOME ?? path.join(os.homedir(), '.hermes'),
@@ -23,7 +33,7 @@ const CONFIG_PATH = path.join(
 function readActiveModel(): string {
   try {
     const raw = fs.readFileSync(CONFIG_PATH, 'utf-8')
-    const config = (YAML.parse(raw) as Record<string, unknown>) || {}
+    const config = YAML.parse(raw) as Record<string, unknown>
     const modelField = config.model
     if (typeof modelField === 'string') return modelField
     if (modelField && typeof modelField === 'object') {
@@ -47,6 +57,11 @@ type ConnectionStatus = {
   chatMode: 'enhanced-claude' | 'portable' | 'disconnected'
   capabilities: Record<string, boolean>
   claudeUrl: string
+  operatorCockpitStatus: WorkspaceOperatorCockpitStatus
+  operatorAgentSociety: WorkspaceOperatorAgentSociety
+  operatorContinuity: WorkspaceOperatorContinuityStatus
+  operatorMissionExecution: WorkspaceOperatorMissionExecution
+  operatorDomainAccessRegistry: WorkspaceOperatorDomainAccessRegistry
 }
 
 export const Route = createFileRoute('/api/connection-status')({
@@ -61,6 +76,13 @@ export const Route = createFileRoute('/api/connection-status')({
         }
 
         const caps = await ensureGatewayProbed()
+        const [operatorCockpitStatus, operatorAgentSociety] = await Promise.all([
+          getOperatorCockpitStatus(),
+          getOperatorAgentSociety(),
+        ])
+        const operatorContinuity = getOperatorContinuityStatus()
+        const operatorMissionExecution = getOperatorMissionExecution()
+        const operatorDomainAccessRegistry = getOperatorDomainAccessRegistry()
         const activeModel = readActiveModel()
         const modelConfigured = Boolean(activeModel)
 
@@ -136,6 +158,11 @@ export const Route = createFileRoute('/api/connection-status')({
             dashboard: caps.dashboard.available,
           },
           claudeUrl: CLAUDE_API,
+          operatorCockpitStatus,
+          operatorAgentSociety,
+          operatorContinuity,
+          operatorMissionExecution,
+          operatorDomainAccessRegistry,
         }
 
         return Response.json(body)
