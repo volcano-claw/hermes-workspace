@@ -1,4 +1,5 @@
 'use client'
+import { withBasePath } from '@/lib/base-path'
 
 import { memo, useCallback, useEffect, useRef, useState } from 'react'
 import type { Terminal } from 'xterm'
@@ -79,7 +80,7 @@ export const SwarmTerminal = memo(function SwarmTerminal({
     const data = inputBufferRef.current
     if (!sessionId || !data) return
     inputBufferRef.current = ''
-    void fetch('/api/terminal-input', {
+    void fetch(withBasePath('/api/terminal-input'), {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ sessionId, data }),
@@ -104,7 +105,7 @@ export const SwarmTerminal = memo(function SwarmTerminal({
     flushPendingInput()
     const sessionId = sessionIdRef.current
     if (sessionId) {
-      void fetch('/api/terminal-close', {
+      void fetch(withBasePath('/api/terminal-close'), {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ sessionId }),
@@ -190,7 +191,7 @@ export const SwarmTerminal = memo(function SwarmTerminal({
       terminal.writeln('')
 
       setState('connecting')
-      const response = await fetch('/api/terminal-stream', {
+      const response = await fetch(withBasePath('/api/terminal-stream'), {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -225,7 +226,7 @@ export const SwarmTerminal = memo(function SwarmTerminal({
       const resizeDisposable = terminal.onResize(({ cols, rows }) => {
         const sessionId = sessionIdRef.current
         if (!sessionId) return
-        void fetch('/api/terminal-resize', {
+        void fetch(withBasePath('/api/terminal-resize'), {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ sessionId, cols, rows }),

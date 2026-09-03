@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { withBasePath } from '@/lib/base-path'
 import { HugeiconsIcon } from '@hugeicons/react'
 import {
   Add01Icon,
@@ -163,7 +164,7 @@ export function TerminalWorkspace({
       .tabs.find((t) => t.id === tabId)
     if (!currentTab?.sessionId) return
     // Fire-and-forget — never await, never block input
-    fetch('/api/terminal-input', {
+    fetch(withBasePath('/api/terminal-input'), {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ sessionId: currentTab.sessionId, data }),
@@ -180,7 +181,7 @@ export function TerminalWorkspace({
       .getState()
       .tabs.find((t) => t.id === tabId)
     if (!currentTab?.sessionId) return
-    await fetch('/api/terminal-resize', {
+    await fetch(withBasePath('/api/terminal-resize'), {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
@@ -224,7 +225,7 @@ export function TerminalWorkspace({
 
       try {
         const terminalOutput = captureRecentTerminalOutput(activeTab.id)
-        const response = await fetch('/api/debug-analyze', {
+        const response = await fetch(withBasePath('/api/debug-analyze'), {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ terminalOutput }),
@@ -296,7 +297,7 @@ export function TerminalWorkspace({
     connectedRef.current.delete(tabId)
 
     if (sessionId) {
-      await fetch('/api/terminal-close', {
+      await fetch(withBasePath('/api/terminal-close'), {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ sessionId }),
@@ -336,7 +337,7 @@ export function TerminalWorkspace({
       connectedRef.current.add(tab.id)
       setTabStatus(tab.id, 'active')
 
-      const response = await fetch('/api/terminal-stream', {
+      const response = await fetch(withBasePath('/api/terminal-stream'), {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({

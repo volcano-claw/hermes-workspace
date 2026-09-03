@@ -1,4 +1,5 @@
 import { Fragment, type ReactNode, useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { withBasePath } from '@/lib/base-path'
 import { cn } from '@/lib/utils'
 import { usePageTitle } from '@/hooks/use-page-title'
 import {
@@ -742,7 +743,7 @@ function FilePanel({ selectedEntry }: FilePanelProps) {
     setSaving(true)
     setShowDiff(false)
     try {
-      const res = await fetch('/api/files', {
+      const res = await fetch(withBasePath('/api/files'), {
         method: 'POST',
         headers: { 'content-type': 'application/json' },
         body: JSON.stringify({ action: 'write', path, content: value }),
@@ -1053,7 +1054,7 @@ export function FilesScreen() {
     const controller = new AbortController()
     const timeoutId = setTimeout(() => controller.abort(), 5000)
     try {
-      const res = await fetch('/api/files?action=list&maxDepth=3', {
+      const res = await fetch(withBasePath('/api/files?action=list&maxDepth=3'), {
         signal: controller.signal,
       })
       if (!res.ok)
@@ -1122,7 +1123,7 @@ export function FilesScreen() {
 
   const handleDeleteConfirmed = useCallback(async () => {
     if (!deleteConfirm) return
-    await fetch('/api/files', {
+    await fetch(withBasePath('/api/files'), {
       method: 'POST',
       headers: { 'content-type': 'application/json' },
       body: JSON.stringify({ action: 'delete', path: deleteConfirm.path }),
@@ -1170,7 +1171,7 @@ export function FilesScreen() {
     if (promptState.mode === 'rename') {
       const parent = getParentPath(promptState.targetPath)
       const nextPath = parent ? `${parent}/${value}` : value
-      await fetch('/api/files', {
+      await fetch(withBasePath('/api/files'), {
         method: 'POST',
         headers: { 'content-type': 'application/json' },
         body: JSON.stringify({
@@ -1184,7 +1185,7 @@ export function FilesScreen() {
       const nextPath = promptState.targetPath
         ? `${promptState.targetPath}/${value}`
         : value
-      await fetch('/api/files', {
+      await fetch(withBasePath('/api/files'), {
         method: 'POST',
         headers: { 'content-type': 'application/json' },
         body: JSON.stringify({ action: 'mkdir', path: nextPath }),

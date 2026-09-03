@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { withBasePath } from '@/lib/base-path'
 import { HugeiconsIcon } from '@hugeicons/react'
 import {
   ArrowRight01Icon,
@@ -93,7 +94,7 @@ function buildReference(pathValue: string) {
 }
 
 async function fetchFileTree(): Promise<Array<FileEntry>> {
-  const res = await fetch('/api/files?action=list')
+  const res = await fetch(withBasePath('/api/files?action=list'))
   if (!res.ok) throw new Error('Failed to load files')
   const data = (await res.json()) as { entries?: Array<FileEntry> }
   return Array.isArray(data.entries) ? data.entries : []
@@ -223,7 +224,7 @@ export function FileExplorerSidebar({
   const handleDelete = useCallback(
     async (entry: FileEntry) => {
       if (!window.confirm(`Move ${entry.name} to trash?`)) return
-      await fetch('/api/files', {
+      await fetch(withBasePath('/api/files'), {
         method: 'POST',
         headers: { 'content-type': 'application/json' },
         body: JSON.stringify({ action: 'delete', path: entry.path }),
@@ -261,7 +262,7 @@ export function FileExplorerSidebar({
         form.append('action', 'upload')
         form.append('path', uploadTargetRef.current || '')
         form.append('file', file)
-        await fetch('/api/files', { method: 'POST', body: form })
+        await fetch(withBasePath('/api/files'), { method: 'POST', body: form })
       }
       event.target.value = ''
       await refresh()
@@ -277,7 +278,7 @@ export function FileExplorerSidebar({
     if (promptState.mode === 'rename') {
       const parent = getParentPath(promptState.targetPath)
       const nextPath = parent ? `${parent}/${value}` : value
-      await fetch('/api/files', {
+      await fetch(withBasePath('/api/files'), {
         method: 'POST',
         headers: { 'content-type': 'application/json' },
         body: JSON.stringify({
@@ -290,7 +291,7 @@ export function FileExplorerSidebar({
       const nextPath = promptState.targetPath
         ? `${promptState.targetPath}/${value}`
         : value
-      await fetch('/api/files', {
+      await fetch(withBasePath('/api/files'), {
         method: 'POST',
         headers: { 'content-type': 'application/json' },
         body: JSON.stringify({ action: 'mkdir', path: nextPath }),
@@ -299,7 +300,7 @@ export function FileExplorerSidebar({
       const nextPath = promptState.targetPath
         ? `${promptState.targetPath}/${value}`
         : value
-      await fetch('/api/files', {
+      await fetch(withBasePath('/api/files'), {
         method: 'POST',
         headers: { 'content-type': 'application/json' },
         body: JSON.stringify({ action: 'write', path: nextPath, content: '' }),

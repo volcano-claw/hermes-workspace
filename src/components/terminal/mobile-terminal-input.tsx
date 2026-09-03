@@ -1,4 +1,5 @@
 /**
+import { withBasePath } from '@/lib/base-path'
  * MobileTerminalInput — completely isolated from TerminalWorkspace.
  * Rendered as a sibling in WorkspaceShell so SSE stream re-renders
  * in the terminal component never freeze this input.
@@ -12,7 +13,7 @@ async function sendToActiveTab(data: string) {
   const { tabs, activeTabId } = useTerminalPanelStore.getState()
   const tab = tabs.find((t) => t.id === activeTabId) ?? tabs[0]
   if (!tab?.sessionId) return
-  await fetch('/api/terminal-input', {
+  await fetch(withBasePath('/api/terminal-input'), {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ sessionId: tab.sessionId, data }),

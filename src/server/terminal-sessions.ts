@@ -73,8 +73,11 @@ export function createTerminalSession(params: {
   const command = params.command?.length
     ? params.command
     : [process.env.SHELL ?? defaultShell]
-  let cwd = params.cwd ?? home
-  if (cwd.startsWith('~')) {
+  const workspaceRoot = process.env.HERMES_WORKSPACE_DIR?.trim() || ''
+  let cwd = params.cwd ?? (workspaceRoot || home)
+  if (cwd === '~' && workspaceRoot) {
+    cwd = workspaceRoot
+  } else if (cwd.startsWith('~')) {
     cwd = cwd.replace('~', home)
   }
   if (!existsSync(cwd)) {

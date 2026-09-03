@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useRef, useState, type CSSProperties } from 'react'
+import { withBasePath } from '@/lib/base-path'
 import { useQuery } from '@tanstack/react-query'
 import { HugeiconsIcon } from '@hugeicons/react'
 import { ArrowDown01Icon, ArrowRight01Icon, PlayIcon, Rocket01Icon, Search01Icon, Settings01Icon, TaskDone01Icon } from '@hugeicons/core-free-icons'
@@ -754,7 +755,7 @@ export function Conductor() {
       setDirectoryBrowserError(null)
 
       try {
-        const res = await fetch(`/api/files?path=${encodeURIComponent(directoryBrowserPath)}`)
+        const res = await fetch(withBasePath(`/api/files?path=${encodeURIComponent(directoryBrowserPath)}`))
         const data = (await res.json().catch(() => ({}))) as {
           error?: string
           root?: string

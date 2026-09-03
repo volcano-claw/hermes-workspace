@@ -19,6 +19,7 @@ import { usePageTitle } from '@/hooks/use-page-title'
 import { FileExplorerSidebar } from '@/components/file-explorer'
 import type { FileEntry } from '@/components/file-explorer/file-explorer-sidebar'
 import { resolveTheme, useSettings } from '@/hooks/use-settings'
+import { withBasePath } from '@/lib/base-path'
 
 const PLACEHOLDER_VALUE = `// Files workspace
 // Click a file in the tree to load it into this editor.
@@ -164,7 +165,7 @@ function FilesRoute() {
     })
     try {
       const res = await fetch(
-        `/api/files?action=read&path=${encodeURIComponent(entry.path)}`,
+        withBasePath(`/api/files?action=read&path=${encodeURIComponent(entry.path)}`),
       )
       if (!res.ok) throw new Error(`Failed to read file (${res.status})`)
       const data = (await res.json()) as {
@@ -197,7 +198,7 @@ function FilesRoute() {
 
   const handleDownload = useCallback(() => {
     if (!loaded) return
-    const url = `/api/files?action=download&path=${encodeURIComponent(loaded.path)}`
+    const url = withBasePath(`/api/files?action=download&path=${encodeURIComponent(loaded.path)}`)
     const anchor = document.createElement('a')
     anchor.href = url
     anchor.download = loaded.name
@@ -206,7 +207,7 @@ function FilesRoute() {
 
   const handleOpenInTab = useCallback(() => {
     if (!loaded) return
-    const url = `/api/files?action=view&path=${encodeURIComponent(loaded.path)}`
+    const url = withBasePath(`/api/files?action=view&path=${encodeURIComponent(loaded.path)}`)
     window.open(url, '_blank', 'noopener,noreferrer')
   }, [loaded])
 
@@ -214,7 +215,7 @@ function FilesRoute() {
     if (!loaded || !loaded.dirty || loaded.imageDataUrl) return
     setSaving(true)
     try {
-      const res = await fetch('/api/files', {
+      const res = await fetch(withBasePath('/api/files'), {
         method: 'POST',
         headers: { 'content-type': 'application/json' },
         body: JSON.stringify({

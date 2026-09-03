@@ -1,4 +1,5 @@
 import 'xterm/css/xterm.css'
+import { withBasePath } from '@/lib/base-path'
 
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { Terminal } from 'xterm'
@@ -116,7 +117,7 @@ export function TerminalPanel({ isMobile }: TerminalPanelProps) {
     async (tabId: string) => {
       const tab = tabs.find((item) => item.id === tabId)
       if (tab?.sessionId) {
-        await fetch('/api/terminal-close', {
+        await fetch(withBasePath('/api/terminal-close'), {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ sessionId: tab.sessionId }),
@@ -177,7 +178,7 @@ export function TerminalPanel({ isMobile }: TerminalPanelProps) {
     async (tabId: string, data: string) => {
       const tab = tabs.find((item) => item.id === tabId)
       if (!tab?.sessionId) return
-      await fetch('/api/terminal-input', {
+      await fetch(withBasePath('/api/terminal-input'), {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ sessionId: tab.sessionId, data }),
@@ -233,7 +234,7 @@ export function TerminalPanel({ isMobile }: TerminalPanelProps) {
     const existing = tabs.find((tab) => tab.id === tabId)
     if (existing?.sessionId) return
 
-    const response = await fetch('/api/terminal-stream', {
+    const response = await fetch(withBasePath('/api/terminal-stream'), {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
@@ -341,7 +342,7 @@ export function TerminalPanel({ isMobile }: TerminalPanelProps) {
     }
 
     if (sessionId) {
-      await fetch('/api/terminal-close', {
+      await fetch(withBasePath('/api/terminal-close'), {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ sessionId }),
@@ -360,7 +361,7 @@ export function TerminalPanel({ isMobile }: TerminalPanelProps) {
     if (!activeTab?.sessionId) return
     const term = terminalMap.current.get(activeTab.id)
     if (!term) return
-    void fetch('/api/terminal-resize', {
+    void fetch(withBasePath('/api/terminal-resize'), {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({

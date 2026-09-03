@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
+import { withBasePath } from '@/lib/base-path'
 import {
   DialogClose,
   DialogContent,
@@ -93,7 +94,7 @@ export default function FilePreviewDialog({
 
   const handleSave = useCallback(async () => {
     if (!path) return
-    await fetch('/api/files', {
+    await fetch(withBasePath('/api/files'), {
       method: 'POST',
       headers: { 'content-type': 'application/json' },
       body: JSON.stringify({
