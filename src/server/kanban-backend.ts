@@ -154,10 +154,20 @@ function claudeProfileRoot(): string {
 }
 
 function claudeDbPath(): string {
+  // local fork carry: Workspace must read the native Hermes board used by the
+  // live dispatcher, not a stale root-level /opt/data/kanban.db fallback.
+  const explicit = env('HERMES_KANBAN_DB')
+  if (explicit) return explicit
+  const board = env('HERMES_KANBAN_BOARD') ?? 'operator-100'
+  const boardDb = path.join(getClaudeRoot(), 'kanban', 'boards', board, 'kanban.db')
+  if (fs.existsSync(boardDb)) return boardDb
   return path.join(getClaudeRoot(), 'kanban.db')
 }
 
 function claudeWorkspacePath(): string {
+  const board = env('HERMES_KANBAN_BOARD') ?? 'operator-100'
+  const boardPath = path.join(getClaudeRoot(), 'kanban', 'boards', board)
+  if (fs.existsSync(boardPath)) return boardPath
   return path.join(getClaudeRoot(), 'kanban')
 }
 
@@ -212,7 +222,35 @@ function sqliteQuote(value: string): string {
 }
 
 function runSqlite(dbPath: string, sql: string): string {
-  return execFileSync('sqlite3', [dbPath, '-json', sql], {
+  const sqlite3 = (() => {
+    try {
+      return execFileSync('which', ['sqlite3'], { encoding: 'utf8', timeout: 5_000 }).trim()
+    } catch {
+      return ''
+    }
+  })()
+  if (sqlite3) {
+    return execFileSync(sqlite3, [dbPath, '-json', sql], {
+      encoding: 'utf8',
+      timeout: 15_000,
+    }).trim()
+  }
+  // Production image does not include the sqlite3 CLI. It does include python3
+  // for terminal support, so use Python's stdlib sqlite3 as the deterministic
+  // fallback instead of returning a fake disconnected board.
+  const script = [
+    'import json, sqlite3, sys',
+    'db=sys.argv[1]',
+    'sql=sys.stdin.read()',
+    'con=sqlite3.connect(db)',
+    'con.row_factory=sqlite3.Row',
+    'cur=con.executescript(sql) if ";" in sql.strip().rstrip(";") else con.execute(sql)',
+    'rows=[] if cur.description is None else [dict(r) for r in cur.fetchall()]',
+    'con.commit()',
+    'print(json.dumps(rows, ensure_ascii=False))',
+  ].join('\n')
+  return execFileSync('python3', ['-c', script, dbPath], {
+    input: sql,
     encoding: 'utf8',
     timeout: 15_000,
   }).trim()
