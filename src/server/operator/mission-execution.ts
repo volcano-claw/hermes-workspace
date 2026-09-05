@@ -40,14 +40,14 @@ export type OperatorMissionKanbanSummary = {
 export type WorkspaceOperatorMissionExecution = {
   mode: 'workspace_operator_mission_execution_v1'
   readOnly: true
-  overallStatus: 'PASS/PARTIAL' | 'ATTENTION'
+  overallStatus: 'PASS' | 'PASS/PARTIAL' | 'ATTENTION'
   executionEnabled: false
   writeRouteEnabled: false
   checkedAt: string
   currentMission: OperatorMissionSummary | null
   kanban: OperatorMissionKanbanSummary
   proofs: Array<string>
-  nextGo: string
+  nextGo: string | null
   summary: string
 }
 
@@ -229,19 +229,31 @@ export function getOperatorMissionExecution(options?: {
         'No write route enabled',
       ]
 
+  const allClosed = operatorTasks.length > 0 && kanban.done === kanban.total
+  const missionStatus = allClosed ? 'PASS' : currentMission ? 'PASS/PARTIAL' : 'ATTENTION'
+
   return {
     mode: MODE,
     readOnly: true,
-    overallStatus: currentMission ? 'PASS/PARTIAL' : 'ATTENTION',
+    overallStatus: missionStatus,
     executionEnabled: false,
     writeRouteEnabled: false,
     checkedAt: nowIso(),
     currentMission,
     kanban,
-    proofs,
-    nextGo: NEXT_GO,
-    summary: currentMission
-      ? `${currentMission.businessArea ? `${currentMission.businessArea} real-work mission` : 'Operator mission'} is visible and linked to Kanban.`
-      : 'No Operator mission task exists yet; create or assign one in Kanban before controlled execution.',
+    proofs: allClosed
+      ? [
+          `All ${kanban.total} Operator Kanban tasks are done`,
+          `Kanban link ${KANBAN_LINK} filters Operator tasks`,
+          'No write route enabled',
+          'No stale human GO is requested for a closed mission set',
+        ]
+      : proofs,
+    nextGo: allClosed ? null : NEXT_GO,
+    summary: allClosed
+      ? 'Operator mission execution is fully closed: no backlog, todo, in-progress, review, or blocked Operator tasks.'
+      : currentMission
+        ? `${currentMission.businessArea ? `${currentMission.businessArea} real-work mission` : 'Operator mission'} is visible and linked to Kanban.`
+        : 'No Operator mission task exists yet; create or assign one in Kanban before controlled execution.',
   }
 }

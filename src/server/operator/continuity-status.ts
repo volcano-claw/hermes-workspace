@@ -70,7 +70,13 @@ function cronLastOk(text: string | null): boolean {
   const jobs = text
     .split('\n')
     .filter((line) => line.includes('**') && line.includes('enabled='))
-  return jobs.length > 0 && jobs.every((line) => line.includes('last=ok'))
+  // local fork carry: a scheduled job with no previous run (`last=None`) is not
+  // a continuity failure. Only explicit non-ok last results should downgrade
+  // the Operator page.
+  return jobs.length > 0 && jobs.every((line) => {
+    const last = line.match(/last=([^\s]+)/)?.[1]
+    return !last || last === 'ok' || last === 'None' || last === 'null'
+  })
 }
 
 function healthFile(
