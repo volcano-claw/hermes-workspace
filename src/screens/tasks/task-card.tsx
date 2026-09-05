@@ -24,6 +24,8 @@ export function TaskCard({ task, assigneeLabels = {}, onClick, onDragStart, isDr
   const visibleTags = task.tags.slice(0, 2)
   const extraTagCount = task.tags.length - 2
   const assigneeLabel = formatTaskAssigneeLabel(task.assignee, assigneeLabels)
+  const projectLabel = task.project_id || task.group_label || null
+  const systemLabel = task.system || null
 
   return (
     <div
@@ -53,6 +55,21 @@ export function TaskCard({ task, assigneeLabels = {}, onClick, onDragStart, isDr
         <p className="text-xs text-[var(--theme-muted)] line-clamp-2 mb-2">
           {task.description}
         </p>
+      )}
+
+      {(projectLabel || systemLabel) && (
+        <div className="mb-2 flex flex-wrap gap-1 text-[10px]">
+          {projectLabel && (
+            <span className="rounded-md bg-[var(--theme-hover)] px-1.5 py-0.5 text-[var(--theme-muted)]">
+              Project: {projectLabel}
+            </span>
+          )}
+          {systemLabel && (
+            <span className="rounded-md bg-[var(--theme-hover)] px-1.5 py-0.5 text-[var(--theme-muted)]">
+              System: {systemLabel}
+            </span>
+          )}
+        </div>
       )}
 
       <div className="flex items-center justify-between gap-2 mt-2 flex-wrap">

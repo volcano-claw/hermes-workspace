@@ -29,9 +29,13 @@ import { stashPendingSend } from '@/screens/chat/pending-send'
 
 const QUERY_KEY = ['claude', 'tasks'] as const
 const ASSIGNEES_KEY = ['claude', 'tasks', 'assignees'] as const
+const ALL_PROJECTS = '__all_projects__'
+const ALL_SYSTEMS = '__all_systems__'
+
+type TaskViewMode = 'active' | 'archive'
 
 export const TASKS_BOARD_HELP_TEXT =
-  'Workspace Tasks is a lightweight task board. Drag cards to change status. Use Dashboard Kanban for native multi-board controls.'
+  'Workspace Tasks is the active cockpit. Use Project/System filters for current work; completed native Kanban slices live in Archive, reports, and ledger.'
 
 function SkeletonCard() {
   return (
@@ -47,6 +51,39 @@ function SkeletonCard() {
   )
 }
 
+export function getTaskProjectId(task: ClaudeTask): string {
+  return task.project_id || (task.tags.find(tag => tag.startsWith('project:'))?.slice('project:'.length)) || 'unclassified'
+}
+
+export function getTaskSystem(task: ClaudeTask): string {
+  return task.system || (task.tags.find(tag => tag.startsWith('system:'))?.slice('system:'.length)) || 'Unknown'
+}
+
+export function getTaskGroupLabel(task: ClaudeTask): string {
+  return task.group_label || `${getTaskProjectId(task)} / ${getTaskSystem(task)}`
+}
+
+export function isArchivedTask(task: ClaudeTask): boolean {
+  return task.column === 'deleted' || task.visibility_state === 'archived_done' || task.visibility_state === 'archived_deleted'
+}
+
+export function groupTasksByLabel(tasks: Array<ClaudeTask>): Array<{ label: string; tasks: Array<ClaudeTask> }> {
+  const groups = new Map<string, Array<ClaudeTask>>()
+  for (const task of tasks) {
+    const label = getTaskGroupLabel(task)
+    groups.set(label, [...(groups.get(label) ?? []), task])
+  }
+  return [...groups.entries()]
+    .map(([label, groupedTasks]) => ({ label, tasks: groupedTasks.sort((a, b) => a.position - b.position) }))
+    .sort((a, b) => a.label.localeCompare(b.label))
+}
+
+function humanizeFilterLabel(value: string): string {
+  return value
+    .replace(/[-_]/g, ' ')
+    .replace(/\b\w/g, char => char.toUpperCase())
+}
+
 export function TasksScreen() {
   const queryClient = useQueryClient()
   const [showCreate, setShowCreate] = useState(false)
@@ -55,6 +92,9 @@ export function TasksScreen() {
   const [draggingId, setDraggingId] = useState<string | null>(null)
   const [dragOverColumn, setDragOverColumn] = useState<TaskColumn | null>(null)
   const [showDone, setShowDone] = useState(false)
+  const [viewMode, setViewMode] = useState<TaskViewMode>('active')
+  const [projectFilter, setProjectFilter] = useState<string>(ALL_PROJECTS)
+  const [systemFilter, setSystemFilter] = useState<string>(ALL_SYSTEMS)
 
   const search = useSearch({ from: '/tasks' })
   const navigate = useNavigate()
@@ -62,8 +102,8 @@ export function TasksScreen() {
   const [assigneeFilter, setAssigneeFilter] = useState<string | null>(initialAssignee)
 
   const tasksQuery = useQuery({
-    queryKey: [...QUERY_KEY, showDone],
-    queryFn: () => fetchTasks({ include_done: showDone }),
+    queryKey: [...QUERY_KEY, showDone || viewMode === 'archive'],
+    queryFn: () => fetchTasks({ include_done: showDone || viewMode === 'archive' }),
     refetchInterval: 30_000,
     placeholderData: keepPreviousData,
   })
@@ -86,21 +126,44 @@ export function TasksScreen() {
   }, [assignees])
 
   const tasks = tasksQuery.data ?? []
-  const visibleTasks = useMemo(() => tasks.filter(t => COLUMN_ORDER.includes(t.column)), [tasks])
+  const projectOptions = useMemo(() => (
+    [...new Set(tasks.map(getTaskProjectId))].sort()
+  ), [tasks])
+  const systemOptions = useMemo(() => (
+    [...new Set(tasks
+      .filter(t => projectFilter === ALL_PROJECTS || getTaskProjectId(t) === projectFilter)
+      .map(getTaskSystem))].sort()
+  ), [tasks, projectFilter])
+  const filteredTasks = useMemo(() => tasks.filter((task) => {
+    const archived = isArchivedTask(task)
+    if (viewMode === 'active' && archived) return false
+    if (viewMode === 'archive' && !archived) return false
+    if (projectFilter !== ALL_PROJECTS && getTaskProjectId(task) !== projectFilter) return false
+    if (systemFilter !== ALL_SYSTEMS && getTaskSystem(task) !== systemFilter) return false
+    if (assigneeFilter && task.assignee !== assigneeFilter) return false
+    return true
+  }), [tasks, viewMode, projectFilter, systemFilter, assigneeFilter])
+  const displayTasks = useMemo(() => (
+    filteredTasks.map(task => (
+      viewMode === 'archive' && task.column === 'deleted'
+        ? { ...task, column: 'done' as TaskColumn }
+        : task
+    ))
+  ), [filteredTasks, viewMode])
+  const visibleTasks = useMemo(() => displayTasks.filter(t => COLUMN_ORDER.includes(t.column)), [displayTasks])
 
   const tasksByColumn = useMemo(() => {
     const map: Record<TaskColumn, Array<ClaudeTask>> = {
       backlog: [], todo: [], in_progress: [], review: [], blocked: [], done: [], deleted: [],
     }
     for (const t of visibleTasks) {
-      if (assigneeFilter && t.assignee !== assigneeFilter) continue
       map[t.column].push(t)
     }
     for (const col of COLUMN_ORDER) {
       map[col].sort((a, b) => a.position - b.position)
     }
     return map
-  }, [visibleTasks, assigneeFilter])
+  }, [visibleTasks])
 
   const stats = useMemo(() => {
     // local fork carry: completion stats are based on visible board columns only.
@@ -179,7 +242,9 @@ export function TasksScreen() {
     setDragOverColumn(null)
   }
 
-  const visibleColumns = showDone ? COLUMN_ORDER : COLUMN_ORDER.filter(c => c !== 'done')
+  const visibleColumns = viewMode === 'archive'
+    ? (['done'] as Array<TaskColumn>)
+    : (showDone ? COLUMN_ORDER : COLUMN_ORDER.filter(c => c !== 'done'))
   const colMaxWidth = Math.floor(1200 / visibleColumns.length)
 
   return (
@@ -256,6 +321,46 @@ export function TasksScreen() {
         <p className="mt-3 text-xs text-[var(--theme-muted)]">
           {TASKS_BOARD_HELP_TEXT}
         </p>
+        <div className="mt-3 grid gap-2 sm:grid-cols-4">
+          <select
+            value={viewMode}
+            onChange={(event) => setViewMode(event.target.value as TaskViewMode)}
+            className="rounded-lg border border-[var(--theme-border)] bg-[var(--theme-card)] px-2 py-1.5 text-xs text-[var(--theme-text)]"
+            aria-label="Tasks view"
+          >
+            <option value="active">Active cockpit</option>
+            <option value="archive">Archive</option>
+          </select>
+          <select
+            value={projectFilter}
+            onChange={(event) => { setProjectFilter(event.target.value); setSystemFilter(ALL_SYSTEMS) }}
+            className="rounded-lg border border-[var(--theme-border)] bg-[var(--theme-card)] px-2 py-1.5 text-xs text-[var(--theme-text)]"
+            aria-label="Project filter"
+          >
+            <option value={ALL_PROJECTS}>All projects</option>
+            {projectOptions.map(project => (
+              <option key={project} value={project}>{humanizeFilterLabel(project)}</option>
+            ))}
+          </select>
+          <select
+            value={systemFilter}
+            onChange={(event) => setSystemFilter(event.target.value)}
+            className="rounded-lg border border-[var(--theme-border)] bg-[var(--theme-card)] px-2 py-1.5 text-xs text-[var(--theme-text)]"
+            aria-label="System filter"
+          >
+            <option value={ALL_SYSTEMS}>All systems</option>
+            {systemOptions.map(system => (
+              <option key={system} value={system}>{system}</option>
+            ))}
+          </select>
+          <button
+            type="button"
+            onClick={() => { setViewMode('active'); setProjectFilter(ALL_PROJECTS); setSystemFilter(ALL_SYSTEMS); setAssigneeFilter(null) }}
+            className="rounded-lg border border-[var(--theme-border)] px-2 py-1.5 text-xs text-[var(--theme-muted)] hover:border-[var(--theme-accent)] hover:text-[var(--theme-text)]"
+          >
+            Reset view
+          </button>
+        </div>
       </header>
 
       {/* Board */}
@@ -343,23 +448,30 @@ export function TasksScreen() {
                         <p className="text-[10px]">Drop here or click + to add</p>
                       </motion.div>
                     ) : (
-                      colTasks.map(task => (
-                        <motion.div
-                          key={task.id}
-                          layout
-                          initial={{ opacity: 0, y: 6 }}
-                          animate={{ opacity: 1, y: 0 }}
-                          exit={{ opacity: 0, y: -6 }}
-                          onDragEnd={handleDragEnd}
-                        >
-                          <TaskCard
-                            task={task}
-                            assigneeLabels={assigneeLabels}
-                            isDragging={draggingId === task.id}
-                            onDragStart={e => handleDragStart(e, task.id)}
-                            onClick={() => setEditingTask(task)}
-                          />
-                        </motion.div>
+                      groupTasksByLabel(colTasks).map(group => (
+                        <div key={group.label} className="flex flex-col gap-2">
+                          <div className="sticky top-0 z-10 rounded-md border border-[var(--theme-border)] bg-[var(--theme-card)]/95 px-2 py-1 text-[10px] font-semibold uppercase tracking-wide text-[var(--theme-muted)] backdrop-blur">
+                            {group.label} · {group.tasks.length}
+                          </div>
+                          {group.tasks.map(task => (
+                            <motion.div
+                              key={task.id}
+                              layout
+                              initial={{ opacity: 0, y: 6 }}
+                              animate={{ opacity: 1, y: 0 }}
+                              exit={{ opacity: 0, y: -6 }}
+                              onDragEnd={handleDragEnd}
+                            >
+                              <TaskCard
+                                task={task}
+                                assigneeLabels={assigneeLabels}
+                                isDragging={draggingId === task.id}
+                                onDragStart={e => handleDragStart(e, task.id)}
+                                onClick={() => setEditingTask(task)}
+                              />
+                            </motion.div>
+                          ))}
+                        </div>
                       ))
                     )}
                   </AnimatePresence>

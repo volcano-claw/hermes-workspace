@@ -99,6 +99,22 @@ export type ClaudeTask = {
   created_at: string
   updated_at: string
   session_id?: string | null
+  native_kanban_id?: string | null
+  source_board?: string | null
+  project_id?: string | null
+  system?: string | null
+  request_id?: string | null
+  mission_id?: string | null
+  parent_task_id?: string | null
+  root_task_id?: string | null
+  group_key?: string | null
+  group_label?: string | null
+  card_type?: string | null
+  visibility_state?: string | null
+  archive_reason?: string | null
+  archived_at?: string | null
+  completed_native_at?: string | null
+  programme_title?: string | null
 }
 
 export type CreateTaskInput = {
