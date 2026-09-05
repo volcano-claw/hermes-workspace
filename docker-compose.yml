@@ -96,8 +96,12 @@ services:
     env_file:
       - .env
     environment:
-      HERMES_HOME: /home/workspace/.hermes
-      HERMES_WORKSPACE_DIR: /workspace
+      HERMES_HOME: /opt/data
+      # local fork carry: the public Workspace cockpit must browse the live
+      # checked-out Workspace source, not an empty generic /workspace volume.
+      HERMES_WORKSPACE_DIR: /workspace/hermes-workspace
+      JARVIS_BRIDGE_DIR: /mnt/jarvis/bridge/hermes-jarvis
+      JARVIS_SIBLING_CANON: /mnt/jarvis/workspace/HERMES-JARVIS-SIBLING.md
       # Internal Docker network URL (not localhost!)
       HERMES_API_URL: http://hermes-agent:8642
       HERMES_DASHBOARD_URL: http://hermes-agent:9119
@@ -118,8 +122,20 @@ services:
       # and bypass local-classification / rate limiting. See #125.
       TRUST_PROXY: ${TRUST_PROXY:-}
     volumes:
-      - hermes-agent-data:/home/workspace/.hermes
-      - hermes-workspace-files:/workspace
+      # local fork carry: bind the real live Hermes data root. In Raphaël's VPS
+      # Docker daemon, the true host root is /srv/openclaw/hermes-data; using a
+      # named example volume or the agent-container /opt/data view can silently
+      # disconnect Workspace from the real runtime.
+      - /srv/openclaw/hermes-data:/opt/data:ro
+      - /srv/openclaw/hermes-data/hermes-workspace:/workspace/hermes-workspace:rw
+      # Jarvis/OpenClaw sibling evidence is read-only; no docker.sock and no
+      # sibling runtime mutation from Workspace.
+      - /srv/openclaw/config/bridge/hermes-jarvis:/mnt/jarvis/bridge/hermes-jarvis:ro
+      - /srv/openclaw/config/workspace/HERMES-JARVIS-SIBLING.md:/mnt/jarvis/workspace/HERMES-JARVIS-SIBLING.md:ro
+      - hermes-workspace-files:/workspace-files
+    group_add:
+      # OpenClaw/Jarvis bridge files are group-readable by gid 988.
+      - '988'
     ports:
       - '127.0.0.1:3000:3000'
 
