@@ -102,8 +102,11 @@ export function TasksScreen() {
   const [assigneeFilter, setAssigneeFilter] = useState<string | null>(initialAssignee)
 
   const tasksQuery = useQuery({
-    queryKey: [...QUERY_KEY, showDone || viewMode === 'archive'],
-    queryFn: () => fetchTasks({ include_done: showDone || viewMode === 'archive' }),
+    queryKey: [...QUERY_KEY, showDone || viewMode === 'archive', viewMode === 'archive'],
+    queryFn: () => fetchTasks({
+      include_done: showDone || viewMode === 'archive',
+      include_archived: viewMode === 'archive',
+    }),
     refetchInterval: 30_000,
     placeholderData: keepPreviousData,
   })

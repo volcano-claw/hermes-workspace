@@ -155,6 +155,7 @@ export async function fetchTasks(params?: {
   assignee?: string
   priority?: TaskPriority
   include_done?: boolean
+  include_archived?: boolean
 }): Promise<Array<ClaudeTask>> {
   const { base } = await resolveBackend()
   const q = new URLSearchParams()
@@ -162,6 +163,7 @@ export async function fetchTasks(params?: {
   if (params?.assignee) q.set('assignee', params.assignee)
   if (params?.priority) q.set('priority', params.priority)
   if (params?.include_done) q.set('include_done', 'true')
+  if (params?.include_archived) q.set('include_archived', 'true')
   const url = q.toString() ? `${base}?${q}` : base
   const res = await fetch(url)
   if (!res.ok) throw new Error(`Failed to fetch tasks: ${res.status}`)

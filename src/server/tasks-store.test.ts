@@ -64,4 +64,53 @@ describe('tasks-store', () => {
     expect(deleted).toHaveLength(1)
     expect(deleted[0]).toMatchObject({ id: 'deleted-1', column: 'deleted' })
   })
+
+  it('preserves hierarchy metadata and returns archived rows only when requested', async () => {
+    const now = '2026-09-05T00:00:00.000Z'
+    const base = {
+      description: '',
+      priority: 'medium',
+      assignee: null,
+      tags: [],
+      due_date: null,
+      position: 0,
+      created_by: 'test',
+      created_at: now,
+      updated_at: now,
+    }
+    const { mod } = await loadStoreWithTasks([
+      {
+        ...base,
+        id: 'active-1',
+        title: 'Active grouped task',
+        column: 'todo',
+        project_id: 'operator-elite-system-improvements',
+        system: 'Workspace',
+        group_label: 'Workspace hierarchy',
+        visibility_state: 'active',
+      },
+      {
+        ...base,
+        id: 'archived-1',
+        title: 'Archived projected task',
+        column: 'deleted',
+        project_id: 'operator-elite-system-improvements',
+        system: 'Workspace',
+        group_label: 'Workspace hierarchy',
+        visibility_state: 'archived_done',
+      },
+    ])
+
+    const active = mod.listTasks({ includeDone: true })
+    expect(active.map((task) => task.id)).toEqual(['active-1'])
+    expect(active[0]).toMatchObject({
+      project_id: 'operator-elite-system-improvements',
+      system: 'Workspace',
+      group_label: 'Workspace hierarchy',
+    })
+
+    const archive = mod.listTasks({ includeDone: true, includeArchived: true })
+    expect(archive.map((task) => task.id)).toEqual(['active-1', 'archived-1'])
+    expect(archive[1]).toMatchObject({ column: 'deleted', visibility_state: 'archived_done' })
+  })
 })

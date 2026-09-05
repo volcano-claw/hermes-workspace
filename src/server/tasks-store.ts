@@ -20,6 +20,22 @@ export type TaskRecord = {
   created_at: string
   updated_at: string
   session_id?: string | null
+  native_kanban_id?: string | null
+  source_board?: string | null
+  project_id?: string | null
+  system?: string | null
+  request_id?: string | null
+  mission_id?: string | null
+  parent_task_id?: string | null
+  root_task_id?: string | null
+  group_key?: string | null
+  group_label?: string | null
+  card_type?: string | null
+  visibility_state?: string | null
+  archive_reason?: string | null
+  archived_at?: string | null
+  completed_native_at?: string | null
+  programme_title?: string | null
 }
 
 type TaskFile = { tasks: TaskRecord[] }
@@ -29,6 +45,7 @@ type TaskFilters = {
   assignee?: string | null
   priority?: string | null
   includeDone?: boolean
+  includeArchived?: boolean
 }
 
 const VISIBLE_TASK_COLUMNS = new Set<TaskColumn>(['backlog', 'todo', 'in_progress', 'review', 'blocked', 'done'])
@@ -82,6 +99,22 @@ function normalizeTask(task: Partial<TaskRecord> & Pick<TaskRecord, 'id' | 'titl
     created_at: task.created_at,
     updated_at: task.updated_at,
     session_id: task.session_id ?? null,
+    native_kanban_id: task.native_kanban_id ?? null,
+    source_board: task.source_board ?? null,
+    project_id: task.project_id ?? null,
+    system: task.system ?? null,
+    request_id: task.request_id ?? null,
+    mission_id: task.mission_id ?? null,
+    parent_task_id: task.parent_task_id ?? null,
+    root_task_id: task.root_task_id ?? null,
+    group_key: task.group_key ?? null,
+    group_label: task.group_label ?? null,
+    card_type: task.card_type ?? null,
+    visibility_state: task.visibility_state ?? null,
+    archive_reason: task.archive_reason ?? null,
+    archived_at: task.archived_at ?? null,
+    completed_native_at: task.completed_native_at ?? null,
+    programme_title: task.programme_title ?? null,
   }
 }
 
@@ -91,6 +124,8 @@ export function listTasks(filters: TaskFilters = {}): TaskRecord[] {
   // They must never reduce user-visible completion totals such as 25/26 = 96%.
   if (filters.column === 'deleted') {
     tasks = tasks.filter((task) => task.column === 'deleted')
+  } else if (filters.includeArchived) {
+    tasks = tasks.filter((task) => VISIBLE_TASK_COLUMNS.has(task.column) || task.column === 'deleted')
   } else {
     tasks = tasks.filter((task) => VISIBLE_TASK_COLUMNS.has(task.column))
   }
