@@ -36,6 +36,15 @@ export type TaskRecord = {
   archived_at?: string | null
   completed_native_at?: string | null
   programme_title?: string | null
+  native_status?: string | null
+  native_run_id?: number | null
+  worker_pid?: number | null
+  last_heartbeat_at?: string | null
+  heartbeat_age_sec?: number | null
+  claim_expires_at?: string | null
+  activity_state?: string | null
+  activity_label?: string | null
+  activity_detail?: string | null
 }
 
 type TaskFile = { tasks: TaskRecord[] }
@@ -115,6 +124,15 @@ function normalizeTask(task: Partial<TaskRecord> & Pick<TaskRecord, 'id' | 'titl
     archived_at: task.archived_at ?? null,
     completed_native_at: task.completed_native_at ?? null,
     programme_title: task.programme_title ?? null,
+    native_status: task.native_status ?? null,
+    native_run_id: typeof task.native_run_id === 'number' ? task.native_run_id : null,
+    worker_pid: typeof task.worker_pid === 'number' ? task.worker_pid : null,
+    last_heartbeat_at: task.last_heartbeat_at ?? null,
+    heartbeat_age_sec: typeof task.heartbeat_age_sec === 'number' ? task.heartbeat_age_sec : null,
+    claim_expires_at: task.claim_expires_at ?? null,
+    activity_state: task.activity_state ?? null,
+    activity_label: task.activity_label ?? null,
+    activity_detail: task.activity_detail ?? null,
   }
 }
 

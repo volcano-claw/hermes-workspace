@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 
-import { formatTaskAssigneeLabel } from './task-card'
+import { formatTaskActivityLabel, formatTaskAssigneeLabel } from './task-card'
 import {
   getTaskGroupLabel,
   getTaskProjectId,
@@ -23,6 +23,19 @@ describe('tasks UX copy', () => {
       'Assignee: Jarvis',
     )
     expect(formatTaskAssigneeLabel(null, {})).toBe('Assignee: Unassigned')
+  })
+
+  it('formats native Kanban activity so running cards prove whether work is active', () => {
+    expect(formatTaskActivityLabel(task({
+      native_kanban_id: 't_91d085a9',
+      native_status: 'running',
+      native_run_id: 59,
+      heartbeat_age_sec: 38,
+    }))).toBe('Active: run #59, heartbeat 38s ago')
+    expect(formatTaskActivityLabel(task({
+      native_kanban_id: 't_91d085a9',
+      activity_label: 'Stale? · run #59 · heartbeat 420s',
+    }))).toBe('Stale? · run #59 · heartbeat 420s')
   })
 
   function task(overrides: Partial<ClaudeTask>): ClaudeTask {

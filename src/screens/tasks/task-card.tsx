@@ -18,6 +18,18 @@ export function formatTaskAssigneeLabel(
   return `Assignee: ${resolvedLabel}`
 }
 
+export function formatTaskActivityLabel(task: ClaudeTask): string | null {
+  if (!task.native_kanban_id && !task.activity_label && !task.native_status) return null
+  if (task.activity_label) return task.activity_label
+  if (task.native_status === 'running') {
+    const age = typeof task.heartbeat_age_sec === 'number' ? `${task.heartbeat_age_sec}s ago` : 'unknown heartbeat'
+    const run = task.native_run_id ? `run #${task.native_run_id}` : 'running'
+    return `Active: ${run}, heartbeat ${age}`
+  }
+  if (task.native_status) return `Native: ${task.native_status}`
+  return null
+}
+
 export function TaskCard({ task, assigneeLabels = {}, onClick, onDragStart, isDragging }: Props) {
   const overdue = isOverdue(task)
   const priorityColor = PRIORITY_COLORS[task.priority]
@@ -26,6 +38,13 @@ export function TaskCard({ task, assigneeLabels = {}, onClick, onDragStart, isDr
   const assigneeLabel = formatTaskAssigneeLabel(task.assignee, assigneeLabels)
   const projectLabel = task.project_id || task.group_label || null
   const systemLabel = task.system || null
+  const activityLabel = formatTaskActivityLabel(task)
+  const activityState = task.activity_state || (task.native_status === 'running' ? 'active' : null)
+  const activityClass = activityState === 'stale'
+    ? 'border-amber-400/60 bg-amber-400/10 text-amber-300'
+    : activityState === 'dead'
+      ? 'border-red-400/60 bg-red-400/10 text-red-300'
+      : 'border-emerald-400/60 bg-emerald-400/10 text-emerald-300'
 
   return (
     <div
@@ -57,7 +76,7 @@ export function TaskCard({ task, assigneeLabels = {}, onClick, onDragStart, isDr
         </p>
       )}
 
-      {(projectLabel || systemLabel) && (
+      {(projectLabel || systemLabel || activityLabel) && (
         <div className="mb-2 flex flex-wrap gap-1 text-[10px]">
           {projectLabel && (
             <span className="rounded-md bg-[var(--theme-hover)] px-1.5 py-0.5 text-[var(--theme-muted)]">
@@ -67,6 +86,14 @@ export function TaskCard({ task, assigneeLabels = {}, onClick, onDragStart, isDr
           {systemLabel && (
             <span className="rounded-md bg-[var(--theme-hover)] px-1.5 py-0.5 text-[var(--theme-muted)]">
               System: {systemLabel}
+            </span>
+          )}
+          {activityLabel && (
+            <span
+              className={cn('rounded-md border px-1.5 py-0.5 font-semibold', activityClass)}
+              title={task.activity_detail || undefined}
+            >
+              {activityLabel}
             </span>
           )}
         </div>

@@ -121,6 +121,15 @@ export type ClaudeTask = {
   archived_at?: string | null
   completed_native_at?: string | null
   programme_title?: string | null
+  native_status?: string | null
+  native_run_id?: number | null
+  worker_pid?: number | null
+  last_heartbeat_at?: string | null
+  heartbeat_age_sec?: number | null
+  claim_expires_at?: string | null
+  activity_state?: string | null
+  activity_label?: string | null
+  activity_detail?: string | null
 }
 
 export type CreateTaskInput = {

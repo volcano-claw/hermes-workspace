@@ -107,7 +107,8 @@ export function TasksScreen() {
       include_done: showDone || viewMode === 'archive',
       include_archived: viewMode === 'archive',
     }),
-    refetchInterval: 30_000,
+    refetchInterval: 5_000,
+    refetchIntervalInBackground: true,
     placeholderData: keepPreviousData,
   })
 
