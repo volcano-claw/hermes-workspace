@@ -53,15 +53,14 @@ async function resolveBackend(): Promise<BackendResolution> {
     // can proxy to a dashboard HTML page and log noisy 500 JSON parse errors.
     const hermesCount = await probeBackend(HERMES_BASE)
     let claudeCount = 0
-    if (hermesCount <= 0) {
+    if (hermesCount < 0) {
       claudeCount = await probeBackend(CLAUDE_BASE)
     }
 
-    // Prefer hermes if it has real data (> 0); fall back to claude if hermes is
-    // missing (returns -1 for non-JSON / route-not-found) or empty.
-    // Default to claude when both are empty — it is the active backend after the
-    // hermes-tasks → claude-tasks route rename (commit efcb7d14).
-    const useHermes = hermesCount > 0 && hermesCount >= claudeCount
+    // Prefer Hermes whenever its route returns valid JSON, even when the active
+    // board is empty. Empty active work is still a healthy canonical backend;
+    // probing the legacy route creates noisy 500s and can make Tasks look stuck.
+    const useHermes = hermesCount >= 0
     _resolved = {
       base: useHermes ? HERMES_BASE : CLAUDE_BASE,
       // `/api/hermes-tasks-assignees` is not implemented in this fork; use the
