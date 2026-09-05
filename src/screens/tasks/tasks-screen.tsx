@@ -91,7 +91,7 @@ export function TasksScreen() {
   const [editingTask, setEditingTask] = useState<ClaudeTask | null>(null)
   const [draggingId, setDraggingId] = useState<string | null>(null)
   const [dragOverColumn, setDragOverColumn] = useState<TaskColumn | null>(null)
-  const [showDone, setShowDone] = useState(false)
+  const [showDone, setShowDone] = useState(true)
   const [viewMode, setViewMode] = useState<TaskViewMode>('active')
   const [projectFilter, setProjectFilter] = useState<string>(ALL_PROJECTS)
   const [systemFilter, setSystemFilter] = useState<string>(ALL_SYSTEMS)
