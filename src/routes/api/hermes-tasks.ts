@@ -40,6 +40,7 @@ export const Route = createFileRoute('/api/hermes-tasks')({
           assignee: url.searchParams.get('assignee'),
           priority: url.searchParams.get('priority'),
           includeDone: url.searchParams.get('include_done') === 'true',
+          includeArchived: url.searchParams.get('include_archived') === 'true',
         })
 
         return jsonResponse({ tasks })
