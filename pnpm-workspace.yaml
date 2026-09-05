@@ -7,3 +7,5 @@ allowBuilds:
 overrides:
   # local fork carry: security floor for TanStack router serialization advisory GHSA-mv8w-475r-vwqw.
   seroval@<=1.5.2: '>=1.5.3'
+  # local fork carry: cheerio/TanStack build tooling must not pull vulnerable undici 7.23-7.28.
+  undici@>=7.0.0 <7.29.0: '>=7.29.0'
