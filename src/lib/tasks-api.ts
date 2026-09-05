@@ -48,10 +48,14 @@ async function resolveBackend(): Promise<BackendResolution> {
   if (_resolving) return _resolving
 
   _resolving = (async () => {
-    const [hermesCount, claudeCount] = await Promise.all([
-      probeBackend(HERMES_BASE),
-      probeBackend(CLAUDE_BASE),
-    ])
+    // Local fork carry: prefer the canonical Hermes task store without probing
+    // the legacy Claude backend when Hermes already has data. The legacy route
+    // can proxy to a dashboard HTML page and log noisy 500 JSON parse errors.
+    const hermesCount = await probeBackend(HERMES_BASE)
+    let claudeCount = 0
+    if (hermesCount <= 0) {
+      claudeCount = await probeBackend(CLAUDE_BASE)
+    }
 
     // Prefer hermes if it has real data (> 0); fall back to claude if hermes is
     // missing (returns -1 for non-JSON / route-not-found) or empty.
@@ -60,7 +64,9 @@ async function resolveBackend(): Promise<BackendResolution> {
     const useHermes = hermesCount > 0 && hermesCount >= claudeCount
     _resolved = {
       base: useHermes ? HERMES_BASE : CLAUDE_BASE,
-      assigneesBase: useHermes ? '/api/hermes-tasks-assignees' : '/api/claude-tasks-assignees',
+      // `/api/hermes-tasks-assignees` is not implemented in this fork; use the
+      // existing JSON assignee endpoint instead of parsing the HTML app shell.
+      assigneesBase: useHermes ? '/api/claude-tasks-assignees' : '/api/claude-tasks-assignees',
       backend: useHermes ? 'hermes' : 'claude',
     }
     return _resolved
@@ -147,6 +153,8 @@ export async function fetchAssignees(): Promise<AssigneesResponse> {
   const { assigneesBase } = await resolveBackend()
   const res = await fetch(assigneesBase)
   if (!res.ok) return { assignees: [], humanReviewer: null }
+  const contentType = res.headers.get('content-type') ?? ''
+  if (!contentType.includes('application/json')) return { assignees: [], humanReviewer: null }
   return res.json()
 }
 
