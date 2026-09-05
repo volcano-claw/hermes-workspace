@@ -86,12 +86,13 @@ export function TasksScreen() {
   }, [assignees])
 
   const tasks = tasksQuery.data ?? []
+  const visibleTasks = useMemo(() => tasks.filter(t => COLUMN_ORDER.includes(t.column)), [tasks])
 
   const tasksByColumn = useMemo(() => {
     const map: Record<TaskColumn, Array<ClaudeTask>> = {
       backlog: [], todo: [], in_progress: [], review: [], blocked: [], done: [], deleted: [],
     }
-    for (const t of tasks) {
+    for (const t of visibleTasks) {
       if (assigneeFilter && t.assignee !== assigneeFilter) continue
       map[t.column].push(t)
     }
@@ -99,17 +100,19 @@ export function TasksScreen() {
       map[col].sort((a, b) => a.position - b.position)
     }
     return map
-  }, [tasks, assigneeFilter])
+  }, [visibleTasks, assigneeFilter])
 
   const stats = useMemo(() => {
-    const total = tasks.length
-    const running = tasks.filter(t => t.column === 'in_progress').length
-    const blocked = tasks.filter(t => t.column === 'blocked').length
-    const done = tasks.filter(t => t.column === 'done').length
-    const overdue = tasks.filter(t => isOverdue(t) && t.column !== 'done').length
+    // local fork carry: completion stats are based on visible board columns only.
+    // Hidden/storage-only rows like column="deleted" must not produce 25/26 = 96%.
+    const total = visibleTasks.length
+    const running = visibleTasks.filter(t => t.column === 'in_progress').length
+    const blocked = visibleTasks.filter(t => t.column === 'blocked').length
+    const done = visibleTasks.filter(t => t.column === 'done').length
+    const overdue = visibleTasks.filter(t => isOverdue(t) && t.column !== 'done').length
     const completion = total > 0 ? Math.round((done / total) * 100) : 0
     return { total, running, blocked, done, overdue, completion }
-  }, [tasks])
+  }, [visibleTasks])
 
   const invalidate = useCallback(() => {
     void queryClient.invalidateQueries({ queryKey: QUERY_KEY })

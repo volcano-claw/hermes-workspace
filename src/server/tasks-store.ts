@@ -31,6 +31,8 @@ type TaskFilters = {
   includeDone?: boolean
 }
 
+const VISIBLE_TASK_COLUMNS = new Set<TaskColumn>(['backlog', 'todo', 'in_progress', 'review', 'blocked', 'done'])
+
 type CreateTaskInput = Partial<TaskRecord> & { title: string }
 type UpdateTaskInput = Partial<Omit<TaskRecord, 'id' | 'created_at' | 'created_by'>>
 
@@ -85,6 +87,13 @@ function normalizeTask(task: Partial<TaskRecord> & Pick<TaskRecord, 'id' | 'titl
 
 export function listTasks(filters: TaskFilters = {}): TaskRecord[] {
   let tasks = readTaskFile().tasks.map(normalizeTask)
+  // local fork carry: soft-deleted Workspace rows are storage/history only.
+  // They must never reduce user-visible completion totals such as 25/26 = 96%.
+  if (filters.column === 'deleted') {
+    tasks = tasks.filter((task) => task.column === 'deleted')
+  } else {
+    tasks = tasks.filter((task) => VISIBLE_TASK_COLUMNS.has(task.column))
+  }
   if (!filters.includeDone) {
     tasks = tasks.filter((task) => task.column !== 'done')
   }
