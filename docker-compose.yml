@@ -102,6 +102,7 @@ services:
       HERMES_WORKSPACE_DIR: /workspace/hermes-workspace
       JARVIS_BRIDGE_DIR: /mnt/jarvis/bridge/hermes-jarvis
       JARVIS_SIBLING_CANON: /mnt/jarvis/workspace/HERMES-JARVIS-SIBLING.md
+      JARVIS_BRIDGE_GID: '988'
       # Internal Docker network URL (not localhost!)
       HERMES_API_URL: http://hermes-agent:8642
       HERMES_DASHBOARD_URL: http://hermes-agent:9119
