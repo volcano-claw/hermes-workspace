@@ -3,3 +3,7 @@ allowBuilds:
   electron-winstaller: true
   esbuild: true
   unrs-resolver: true
+
+overrides:
+  # local fork carry: security floor for TanStack router serialization advisory GHSA-mv8w-475r-vwqw.
+  seroval@<=1.5.2: '>=1.5.3'
