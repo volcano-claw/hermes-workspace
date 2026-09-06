@@ -5,6 +5,8 @@ settings:
   excludeLinksFromLockfile: false
 
 overrides:
+  seroval@<=1.5.2: '>=1.5.3'
+  undici@>=7.0.0 <7.29.0: '>=7.29.0'
   brace-expansion: 1.1.18
   postcss: 8.5.28
   nanoid: 3.3.18
@@ -33,8 +35,8 @@ importers:
         specifier: ^1.1.4
         version: 1.1.6(react@19.2.4)
       '@lobehub/icons':
-        specifier: ^5.18.0
-        version: 5.18.0(@lobehub/ui@5.5.1)(@types/react@19.2.14)(antd@6.3.2(date-fns@2.30.0)(react-dom@19.2.4(react@19.2.4))(react@19.2.4))(react-dom@19.2.4(react@19.2.4))(react@19.2.4)
+        specifier: 5.0.1
+        version: 5.0.1(@lobehub/ui@5.5.1)(@types/react@19.2.14)(antd@6.3.2(date-fns@2.30.0)(react-dom@19.2.4(react@19.2.4))(react@19.2.4))(react-dom@19.2.4(react@19.2.4))(react@19.2.4)
       '@lobehub/icons-static-png':
         specifier: ^1.83.0
         version: 1.83.0
@@ -960,8 +962,8 @@ packages:
   '@lobehub/icons-static-png@1.83.0':
     resolution: {integrity: sha512-64CQr1ojUMPDZOCIyVz3L9JzR1lwQ6wINslKB9tq8+fr+5WKhlVTHHkyRY8gkftV4QWTxApuJB5+HT8XAmsddA==}
 
-  '@lobehub/icons@5.18.0':
-    resolution: {integrity: sha512-DIIdEYJfyJ93v1/OrsR7NVU0LGcoHh07I5tHx/HTFuBcYEiOJ/aUQwbnNXwVAhoXBWSSOwmmuFrF4UoNcQ0qnw==}
+  '@lobehub/icons@5.0.1':
+    resolution: {integrity: sha512-Wp9KINavihoWtTOHqHFj80GaKOrIRnOT0S7q5JxMRjijv4CEzbyEkJ2ILJlTz8zstRUfx+HvCVAKUv/Mbdp00Q==}
     peerDependencies:
       '@lobehub/ui': ^5.0.0
       antd: ^6.1.1
@@ -5510,7 +5512,7 @@ packages:
     resolution: {integrity: sha512-R0f1U9hmn38+dFMz6b6ab8lwucmw4AtiY7St+JPWudy1dm+Bs3g884nyrsH9Cy6rKpZKLYayXuMda9GZ/fl8JQ==}
     engines: {node: '>=10'}
     peerDependencies:
-      seroval: ^1.0
+      seroval: '>=1.5.3'
 
   seroval@1.6.4:
     resolution: {integrity: sha512-LErWMNS2RRFdu2RMA5u/PA59/IWs0XsikyEXGQ2/36iEWFrdG0ABmg17E17cikrv76891kOAMq3TkTFXpwAHXw==}
@@ -7133,12 +7135,11 @@ snapshots:
 
   '@lobehub/icons-static-png@1.83.0': {}
 
-  '@lobehub/icons@5.18.0(@lobehub/ui@5.5.1)(@types/react@19.2.14)(antd@6.3.2(date-fns@2.30.0)(react-dom@19.2.4(react@19.2.4))(react@19.2.4))(react-dom@19.2.4(react@19.2.4))(react@19.2.4)':
+  '@lobehub/icons@5.0.1(@lobehub/ui@5.5.1)(@types/react@19.2.14)(antd@6.3.2(date-fns@2.30.0)(react-dom@19.2.4(react@19.2.4))(react@19.2.4))(react-dom@19.2.4(react@19.2.4))(react@19.2.4)':
     dependencies:
-      '@lobehub/ui': 5.5.1(@lobehub/fluent-emoji@4.1.0(@types/react@19.2.14)(antd@6.3.2(date-fns@2.30.0)(react-dom@19.2.4(react@19.2.4))(react@19.2.4))(react-dom@19.2.4(react@19.2.4))(react@19.2.4))(@lobehub/icons@5.18.0)(@shikijs/themes@3.23.0)(@types/mdast@4.0.4)(@types/react-dom@19.2.3(@types/react@19.2.14))(@types/react@19.2.14)(antd@6.3.2(date-fns@2.30.0)(react-dom@19.2.4(react@19.2.4))(react@19.2.4))(micromark-util-types@2.0.2)(micromark@4.0.2)(motion@12.36.0(@emotion/is-prop-valid@1.4.0)(react-dom@19.2.4(react@19.2.4))(react@19.2.4))(react-dom@19.2.4(react@19.2.4))(react@19.2.4)
+      '@lobehub/ui': 5.5.1(@lobehub/fluent-emoji@4.1.0(@types/react@19.2.14)(antd@6.3.2(date-fns@2.30.0)(react-dom@19.2.4(react@19.2.4))(react@19.2.4))(react-dom@19.2.4(react@19.2.4))(react@19.2.4))(@lobehub/icons@5.0.1)(@shikijs/themes@3.23.0)(@types/mdast@4.0.4)(@types/react-dom@19.2.3(@types/react@19.2.14))(@types/react@19.2.14)(antd@6.3.2(date-fns@2.30.0)(react-dom@19.2.4(react@19.2.4))(react@19.2.4))(micromark-util-types@2.0.2)(micromark@4.0.2)(motion@12.36.0(@emotion/is-prop-valid@1.4.0)(react-dom@19.2.4(react@19.2.4))(react@19.2.4))(react-dom@19.2.4(react@19.2.4))(react@19.2.4)
       antd: 6.3.2(date-fns@2.30.0)(react-dom@19.2.4(react@19.2.4))(react@19.2.4)
       antd-style: 4.1.0(@types/react@19.2.14)(antd@6.3.2(date-fns@2.30.0)(react-dom@19.2.4(react@19.2.4))(react@19.2.4))(react-dom@19.2.4(react@19.2.4))(react@19.2.4)
-      es-toolkit: 1.49.0
       lucide-react: 0.469.0(react@19.2.4)
       polished: 4.3.1
       react: 19.2.4
@@ -7147,7 +7148,7 @@ snapshots:
       - '@types/react'
       - supports-color
 
-  '@lobehub/ui@5.5.1(@lobehub/fluent-emoji@4.1.0(@types/react@19.2.14)(antd@6.3.2(date-fns@2.30.0)(react-dom@19.2.4(react@19.2.4))(react@19.2.4))(react-dom@19.2.4(react@19.2.4))(react@19.2.4))(@lobehub/icons@5.18.0)(@shikijs/themes@3.23.0)(@types/mdast@4.0.4)(@types/react-dom@19.2.3(@types/react@19.2.14))(@types/react@19.2.14)(antd@6.3.2(date-fns@2.30.0)(react-dom@19.2.4(react@19.2.4))(react@19.2.4))(micromark-util-types@2.0.2)(micromark@4.0.2)(motion@12.36.0(@emotion/is-prop-valid@1.4.0)(react-dom@19.2.4(react@19.2.4))(react@19.2.4))(react-dom@19.2.4(react@19.2.4))(react@19.2.4)':
+  '@lobehub/ui@5.5.1(@lobehub/fluent-emoji@4.1.0(@types/react@19.2.14)(antd@6.3.2(date-fns@2.30.0)(react-dom@19.2.4(react@19.2.4))(react@19.2.4))(react-dom@19.2.4(react@19.2.4))(react@19.2.4))(@lobehub/icons@5.0.1)(@shikijs/themes@3.23.0)(@types/mdast@4.0.4)(@types/react-dom@19.2.3(@types/react@19.2.14))(@types/react@19.2.14)(antd@6.3.2(date-fns@2.30.0)(react-dom@19.2.4(react@19.2.4))(react@19.2.4))(micromark-util-types@2.0.2)(micromark@4.0.2)(motion@12.36.0(@emotion/is-prop-valid@1.4.0)(react-dom@19.2.4(react@19.2.4))(react@19.2.4))(react-dom@19.2.4(react@19.2.4))(react@19.2.4)':
     dependencies:
       '@ant-design/cssinjs': 2.1.2(react-dom@19.2.4(react@19.2.4))(react@19.2.4)
       '@base-ui/react': 1.0.0(@types/react@19.2.14)(react-dom@19.2.4(react@19.2.4))(react@19.2.4)
@@ -7161,7 +7162,7 @@ snapshots:
       '@floating-ui/react': 0.27.19(react-dom@19.2.4(react@19.2.4))(react@19.2.4)
       '@giscus/react': 3.1.0(react-dom@19.2.4(react@19.2.4))(react@19.2.4)
       '@lobehub/fluent-emoji': 4.1.0(@types/react@19.2.14)(antd@6.3.2(date-fns@2.30.0)(react-dom@19.2.4(react@19.2.4))(react@19.2.4))(react-dom@19.2.4(react@19.2.4))(react@19.2.4)
-      '@lobehub/icons': 5.18.0(@lobehub/ui@5.5.1)(@types/react@19.2.14)(antd@6.3.2(date-fns@2.30.0)(react-dom@19.2.4(react@19.2.4))(react@19.2.4))(react-dom@19.2.4(react@19.2.4))(react@19.2.4)
+      '@lobehub/icons': 5.0.1(@lobehub/ui@5.5.1)(@types/react@19.2.14)(antd@6.3.2(date-fns@2.30.0)(react-dom@19.2.4(react@19.2.4))(react@19.2.4))(react-dom@19.2.4(react@19.2.4))(react@19.2.4)
       '@mdx-js/mdx': 3.1.1
       '@mdx-js/react': 3.1.1(@types/react@19.2.14)(react@19.2.4)
       '@pierre/diffs': 1.2.12(@shikijs/themes@3.23.0)(react-dom@19.2.4(react@19.2.4))(react@19.2.4)
