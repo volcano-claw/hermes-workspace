@@ -25,9 +25,12 @@ function statusTone(status: OperatorCockpitStatus | undefined) {
       text: 'text-zinc-300',
     }
   }
-  if (status.ok && status.operatorStatus !== 'attention') {
+  if (status.ok) {
     return {
-      label: status.operatorStatus || 'ok',
+      label:
+        status.operatorStatus?.toLowerCase() === 'attention'
+          ? 'ok'
+          : status.operatorStatus || 'ok',
       dot: 'bg-emerald-400',
       border: 'border-emerald-400/30',
       text: 'text-emerald-300',
@@ -39,6 +42,16 @@ function statusTone(status: OperatorCockpitStatus | undefined) {
     border: 'border-amber-400/30',
     text: 'text-amber-300',
   }
+}
+
+function displayPhase(status: OperatorCockpitStatus | undefined): string {
+  if (!status) return '—'
+  if (status.ok && status.phaseClosureStatus?.toLowerCase() === 'attention') {
+    return status.operatorStatus?.toLowerCase() === 'attention'
+      ? 'OK'
+      : status.operatorStatus || 'OK'
+  }
+  return status.phaseClosureStatus || '—'
 }
 
 function Metric({ label, value }: { label: string; value: string }) {
@@ -67,7 +80,7 @@ export function OperatorCockpitCard({
   status: OperatorCockpitStatus | undefined
 }) {
   const tone = statusTone(status)
-  const phase = status?.phaseClosureStatus || '—'
+  const phase = displayPhase(status)
   const incidents = status?.openIncidents ?? 0
   const gates = status?.goStopGates ?? 0
 

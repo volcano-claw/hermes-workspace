@@ -141,13 +141,24 @@ function normalizePayload(body: unknown): WorkspaceOperatorCockpitStatus {
     readBoolean(readiness, 'local_control_plane_closed') ?? false
   const openIncidents = readNumber(riskSummary, 'open_incidents')
   const goStopGates = readNumber(componentSummary, 'go_stop_gates')
+  const noOpenIncidents = (openIncidents ?? 0) === 0
+  const noGoStopGates = (goStopGates ?? 0) === 0
+  const clearOkState = ok && noOpenIncidents && noGoStopGates
+  const displayOperatorStatus =
+    clearOkState && operatorStatus?.toLowerCase() === 'attention'
+      ? 'PASS'
+      : operatorStatus
+  const displayPhaseClosureStatus =
+    clearOkState && phaseClosureStatus?.toLowerCase() === 'attention'
+      ? 'PASS'
+      : phaseClosureStatus
 
   const normalized = baseStatus({
     reachable: true,
     ok,
-    operatorStatus,
-    phaseClosureStatus,
-    localControlPlaneClosed,
+    operatorStatus: displayOperatorStatus,
+    phaseClosureStatus: displayPhaseClosureStatus,
+    localControlPlaneClosed: clearOkState || localControlPlaneClosed,
     openIncidents,
     goStopGates,
     summary: ok

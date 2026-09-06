@@ -99,4 +99,39 @@ describe('operator cockpit status bridge', () => {
     expect(status.deployAllowedWithoutGo).toBe(false)
     expect(status.peerDispatchAllowedWithoutGo).toBe(false)
   })
+
+  it('normalizes stale attention labels as OK when the API reports no blocking signals', async () => {
+    const fetchImpl = (() =>
+      Promise.resolve(jsonResponse({
+        ok: true,
+        result: {
+          status: 'attention',
+          summary: {
+            phase_closure: { status: 'ATTENTION' },
+            component_summary: { go_stop_gates: 0 },
+            readiness: { local_control_plane_closed: false },
+            risk_summary: { open_incidents: 0 },
+          },
+        },
+      }))) as unknown as typeof fetch
+
+    const status = await getOperatorCockpitStatus({
+      operatorApiUrl: 'http://operator-api.local:3000',
+      fetchImpl,
+    })
+
+    expect(status).toMatchObject({
+      reachable: true,
+      ok: true,
+      operatorStatus: 'PASS',
+      phaseClosureStatus: 'PASS',
+      localControlPlaneClosed: true,
+      openIncidents: 0,
+      goStopGates: 0,
+      writeActionsEnabled: false,
+      deployAllowedWithoutGo: false,
+      peerDispatchAllowedWithoutGo: false,
+    })
+    expect(status.summary).toContain('reports OK')
+  })
 })
