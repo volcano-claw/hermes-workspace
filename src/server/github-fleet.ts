@@ -62,8 +62,14 @@ export interface GitHubFleetAudit {
   repositories: GitHubFleetRepository[]
 }
 
-export function githubFleetAuditPath(home = process.env.HERMES_HOME || '/opt/data') {
-  return path.join(home, 'hermes-context/runtime/GITHUB-FLEET-AUDIT.json')
+export function githubFleetAuditPath(home?: string) {
+  const roots = home
+    ? [home]
+    : ['/opt/data', process.env.HERMES_HOME || '', '/home/workspace/.hermes']
+  const root = roots.find((candidate) =>
+    candidate && fs.existsSync(path.join(candidate, 'hermes-context/runtime/GITHUB-FLEET-AUDIT.json')),
+  ) || roots.find(Boolean) || '/opt/data'
+  return path.join(root, 'hermes-context/runtime/GITHUB-FLEET-AUDIT.json')
 }
 
 export function readGitHubFleetAudit(filePath = githubFleetAuditPath()): GitHubFleetAudit {
