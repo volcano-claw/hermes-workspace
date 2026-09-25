@@ -61,6 +61,7 @@ import { Route as ApiExternalConversationsRouteImport } from './routes/api/exter
 import { Route as ApiFilesRouteImport } from './routes/api/files'
 import { Route as ApiGatewayReprobeRouteImport } from './routes/api/gateway-reprobe'
 import { Route as ApiGatewayStatusRouteImport } from './routes/api/gateway-status'
+import { Route as ApiGithubFleetRouteImport } from './routes/api/github-fleet'
 import { Route as ApiHermesConfigRouteImport } from './routes/api/hermes-config'
 import { Route as ApiHermesTasksRouteImport } from './routes/api/hermes-tasks'
 import { Route as ApiHistoryRouteImport } from './routes/api/history'
@@ -441,6 +442,11 @@ const ApiGatewayReprobeRoute = ApiGatewayReprobeRouteImport.update({
 const ApiGatewayStatusRoute = ApiGatewayStatusRouteImport.update({
   id: '/api/gateway-status',
   path: '/api/gateway-status',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiGithubFleetRoute = ApiGithubFleetRouteImport.update({
+  id: '/api/github-fleet',
+  path: '/api/github-fleet',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ApiHermesConfigRoute = ApiHermesConfigRouteImport.update({
@@ -1108,6 +1114,7 @@ export interface FileRoutesByFullPath {
   '/api/files': typeof ApiFilesRoute
   '/api/gateway-reprobe': typeof ApiGatewayReprobeRoute
   '/api/gateway-status': typeof ApiGatewayStatusRoute
+  '/api/github-fleet': typeof ApiGithubFleetRoute
   '/api/hermes-config': typeof ApiHermesConfigRoute
   '/api/hermes-tasks': typeof ApiHermesTasksRouteWithChildren
   '/api/history': typeof ApiHistoryRoute
@@ -1281,6 +1288,7 @@ export interface FileRoutesByTo {
   '/api/files': typeof ApiFilesRoute
   '/api/gateway-reprobe': typeof ApiGatewayReprobeRoute
   '/api/gateway-status': typeof ApiGatewayStatusRoute
+  '/api/github-fleet': typeof ApiGithubFleetRoute
   '/api/hermes-config': typeof ApiHermesConfigRoute
   '/api/hermes-tasks': typeof ApiHermesTasksRouteWithChildren
   '/api/history': typeof ApiHistoryRoute
@@ -1456,6 +1464,7 @@ export interface FileRoutesById {
   '/api/files': typeof ApiFilesRoute
   '/api/gateway-reprobe': typeof ApiGatewayReprobeRoute
   '/api/gateway-status': typeof ApiGatewayStatusRoute
+  '/api/github-fleet': typeof ApiGithubFleetRoute
   '/api/hermes-config': typeof ApiHermesConfigRoute
   '/api/hermes-tasks': typeof ApiHermesTasksRouteWithChildren
   '/api/history': typeof ApiHistoryRoute
@@ -1632,6 +1641,7 @@ export interface FileRouteTypes {
     | '/api/files'
     | '/api/gateway-reprobe'
     | '/api/gateway-status'
+    | '/api/github-fleet'
     | '/api/hermes-config'
     | '/api/hermes-tasks'
     | '/api/history'
@@ -1805,6 +1815,7 @@ export interface FileRouteTypes {
     | '/api/files'
     | '/api/gateway-reprobe'
     | '/api/gateway-status'
+    | '/api/github-fleet'
     | '/api/hermes-config'
     | '/api/hermes-tasks'
     | '/api/history'
@@ -1979,6 +1990,7 @@ export interface FileRouteTypes {
     | '/api/files'
     | '/api/gateway-reprobe'
     | '/api/gateway-status'
+    | '/api/github-fleet'
     | '/api/hermes-config'
     | '/api/hermes-tasks'
     | '/api/history'
@@ -2154,6 +2166,7 @@ export interface RootRouteChildren {
   ApiFilesRoute: typeof ApiFilesRoute
   ApiGatewayReprobeRoute: typeof ApiGatewayReprobeRoute
   ApiGatewayStatusRoute: typeof ApiGatewayStatusRoute
+  ApiGithubFleetRoute: typeof ApiGithubFleetRoute
   ApiHermesConfigRoute: typeof ApiHermesConfigRoute
   ApiHermesTasksRoute: typeof ApiHermesTasksRouteWithChildren
   ApiHistoryRoute: typeof ApiHistoryRoute
@@ -2607,6 +2620,13 @@ declare module '@tanstack/react-router' {
       path: '/api/gateway-status'
       fullPath: '/api/gateway-status'
       preLoaderRoute: typeof ApiGatewayStatusRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/github-fleet': {
+      id: '/api/github-fleet'
+      path: '/api/github-fleet'
+      fullPath: '/api/github-fleet'
+      preLoaderRoute: typeof ApiGithubFleetRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/hermes-config': {
@@ -3747,6 +3767,7 @@ const rootRouteChildren: RootRouteChildren = {
   ApiFilesRoute: ApiFilesRoute,
   ApiGatewayReprobeRoute: ApiGatewayReprobeRoute,
   ApiGatewayStatusRoute: ApiGatewayStatusRoute,
+  ApiGithubFleetRoute: ApiGithubFleetRoute,
   ApiHermesConfigRoute: ApiHermesConfigRoute,
   ApiHermesTasksRoute: ApiHermesTasksRouteWithChildren,
   ApiHistoryRoute: ApiHistoryRoute,
