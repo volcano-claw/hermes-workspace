@@ -50,6 +50,7 @@ COPY --from=build --chown=workspace:workspace /app/package.json ./package.json
 COPY --from=build --chown=workspace:workspace /app/server-entry.js ./server-entry.js
 COPY --from=build --chown=workspace:workspace /app/skills ./skills
 COPY --chown=workspace:workspace docker/entrypoint.sh /usr/local/bin/docker-entrypoint.sh
+RUN chmod 0755 /usr/local/bin/docker-entrypoint.sh
 
 ENV NODE_ENV=production \
     PORT=3000 \
