@@ -1,4 +1,5 @@
 import { useQuery } from '@tanstack/react-query'
+import { Link } from '@tanstack/react-router'
 import { OperatorContinuityCard } from './operator-continuity-card'
 import { OperatorDomainAccessRegistryCard } from './operator-domain-access-registry-card'
 import { OperatorMissionExecutionCard } from './operator-mission-execution-card'
@@ -63,9 +64,17 @@ export function OperatorScreen() {
                 Cockpit Operator maison, lecture seule.
               </p>
             </div>
-            <div className="inline-flex w-fit items-center gap-2 rounded-full border border-emerald-400/30 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.12em] text-emerald-300">
-              <span className="size-2 rounded-full bg-emerald-400" />
-              Read-only
+            <div className="flex flex-wrap items-center gap-2">
+              <Link
+                to="/repositories"
+                className="rounded-full border border-amber-400/30 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.12em] text-amber-300 transition hover:bg-amber-400/10"
+              >
+                50 repos cartographiés
+              </Link>
+              <div className="inline-flex w-fit items-center gap-2 rounded-full border border-emerald-400/30 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.12em] text-emerald-300">
+                <span className="size-2 rounded-full bg-emerald-400" />
+                Read-only
+              </div>
             </div>
           </div>
         </header>
