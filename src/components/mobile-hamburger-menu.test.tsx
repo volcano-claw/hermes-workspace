@@ -5,6 +5,7 @@ describe('mobile hamburger system navigation', () => {
   it('exposes dedicated System and Operator entries', () => {
     const system = MOBILE_HAMBURGER_NAV_ITEMS.find((entry) => entry.id === 'system')
     const operator = MOBILE_HAMBURGER_NAV_ITEMS.find((entry) => entry.id === 'operator')
+    const repositories = MOBILE_HAMBURGER_NAV_ITEMS.find((entry) => entry.id === 'repositories')
 
     expect(system?.label).toBe('System')
     expect(system?.to).toBe('/system')
@@ -15,5 +16,7 @@ describe('mobile hamburger system navigation', () => {
     expect(operator?.to).toBe('/operator')
     expect(operator?.match('/operator')).toBe(true)
     expect(operator?.match('/operator/details')).toBe(true)
+    expect(repositories?.label).toBe('Repos')
+    expect(repositories?.to).toBe('/repositories')
   })
 })

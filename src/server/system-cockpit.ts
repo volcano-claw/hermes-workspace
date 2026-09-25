@@ -55,6 +55,7 @@ type Options = {
   knowledgeDir?: string
   tasksHome?: string
   contextRoot?: string
+  canonicalHermesHome?: string
 }
 
 const DEFAULT_CONTEXT_ROOT = '/opt/data/hermes-context'
@@ -149,12 +150,14 @@ export async function getSystemCockpitSnapshot(
   const knowledgeDir = options.knowledgeDir ?? process.env.KNOWLEDGE_DIR ?? null
   const tasksHome = options.tasksHome ?? process.env.HERMES_WORKSPACE_TASKS_HOME ?? hermesHome
   const contextRoot = options.contextRoot ?? DEFAULT_CONTEXT_ROOT
+  const canonicalHermesHome = options.canonicalHermesHome
+    ?? (readable('/opt/data/config.yaml') ? '/opt/data' : hermesHome)
   const apiUrl = (process.env.HERMES_API_URL || process.env.CLAUDE_API_URL || 'http://127.0.0.1:8642').replace(/\/+$/, '')
   const operatorApiUrl = (process.env.HERMES_OPERATOR_API_URL || process.env.OPERATOR_API_URL || '').replace(/\/+$/, '') || null
 
-  const configPath = path.join(hermesHome, 'config.yaml')
-  const stateDbPath = path.join(hermesHome, 'state.db')
-  const memoryPath = path.join(hermesHome, 'memories', 'MEMORY.md')
+  const configPath = path.join(canonicalHermesHome, 'config.yaml')
+  const stateDbPath = path.join(canonicalHermesHome, 'state.db')
+  const memoryPath = path.join(canonicalHermesHome, 'memories', 'MEMORY.md')
   const tasksPath = path.join(tasksHome, 'tasks.json')
   const jarvisCanon = process.env.JARVIS_SIBLING_CANON || '/mnt/jarvis/workspace/HERMES-JARVIS-SIBLING.md'
   const jarvisBridge = process.env.JARVIS_BRIDGE_DIR || '/mnt/jarvis/bridge/hermes-jarvis'

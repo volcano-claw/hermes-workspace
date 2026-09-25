@@ -151,7 +151,14 @@ export function listCronProfiles(): Array<{ profile: string; home: string }> {
 
 export function listProfileCronJobs(): Array<ProfileCronJob> {
   const rows: Array<ProfileCronJob> = []
-  for (const entry of listCronProfiles()) {
+  const canonicalRoot = '/opt/data'
+  const readableProfiles = existsSync(join(canonicalRoot, 'cron', 'jobs.json'))
+    ? [
+        { profile: 'default', home: canonicalRoot },
+        ...listCronProfiles().filter((entry) => entry.profile !== 'default'),
+      ]
+    : listCronProfiles()
+  for (const entry of readableProfiles) {
     const jobs = readJobsFile(join(entry.home, 'cron', 'jobs.json'))
     for (const job of jobs) {
       const rawId = readString(job.id, job.jobId)

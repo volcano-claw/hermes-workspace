@@ -91,6 +91,13 @@ export const MOBILE_HAMBURGER_NAV_ITEMS = [
     match: (p: string) => p.startsWith('/operator'),
   },
   {
+    id: 'repositories',
+    label: 'Repos',
+    icon: PuzzleIcon,
+    to: '/repositories',
+    match: (p: string) => p.startsWith('/repositories'),
+  },
+  {
     id: 'echo-studio',
     label: 'Echo Studio',
     icon: Rocket01Icon,
@@ -233,7 +240,7 @@ export function MobileHamburgerMenu() {
         >
           <div className="flex items-center gap-2.5">
             <img
-              src="/claude-avatar.webp"
+              src="/hermes-avatar.webp"
               alt="Hermes Agent"
               className="size-8 rounded-xl shrink-0"
             />

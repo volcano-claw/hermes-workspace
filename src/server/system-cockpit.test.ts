@@ -12,6 +12,7 @@ describe('system-cockpit', () => {
       knowledgeDir: '/missing/vault',
       tasksHome: '/missing/tasks',
       contextRoot: '/missing/context',
+      canonicalHermesHome: '/missing/canonical-home',
     })
 
     expect(snapshot.mode).toBe('workspace_system_cockpit_v1')
