@@ -20,6 +20,7 @@ from typing import Any
 HOME = Path(os.environ.get("HERMES_HOME", "/opt/data"))
 CATALOG = HOME / "hermes-workspace/src/lib/catalog/repo-catalog.json"
 OUTPUT = HOME / "hermes-context/runtime/GITHUB-FLEET-AUDIT.json"
+DECISIONS = HOME / "hermes-context/governance/GITHUB-FLEET-QUALITATIVE-DECISIONS.json"
 TOKEN_HELPER = HOME / "scripts/github-app-token-volcano-claw.py"
 USER_AGENT = "Hermes-GitHub-Fleet-Audit/1.0"
 
@@ -92,8 +93,10 @@ def classify(repo: dict[str, Any], live: dict[str, Any], compare: dict[str, Any]
     return {"state": "current", "priority": 20, "reason": "Aucune dérive prioritaire détectée", "recommendedAction": repo.get("nextAction")}
 
 
-def audit(catalog_path: Path) -> dict[str, Any]:
+def audit(catalog_path: Path, decisions_path: Path = DECISIONS) -> dict[str, Any]:
     catalog = json.loads(catalog_path.read_text(encoding="utf-8"))
+    qualitative_payload = json.loads(decisions_path.read_text(encoding="utf-8")) if decisions_path.exists() else {"decisions": {}}
+    qualitative = qualitative_payload.get("decisions", {})
     expected = int(catalog.get("coverage", {}).get("repositories", 0))
     repositories = catalog.get("repositories", [])
     if expected != len(repositories):
@@ -119,6 +122,7 @@ def audit(catalog_path: Path) -> dict[str, Any]:
         except Exception as exc:  # bounded per-repo failure, never expose credentials
             error = str(exc).replace(client.token or "__NO_TOKEN__", "[REDACTED]")[:500]
         decision = classify(source, live, compare, error)
+        review = qualitative.get(full_name)
         results.append({
             "name": source["name"],
             "fullName": full_name,
@@ -144,6 +148,7 @@ def audit(catalog_path: Path) -> dict[str, Any]:
             "behindBy": (compare or {}).get("behind_by"),
             "compareStatus": (compare or {}).get("status"),
             "audit": decision,
+            "qualitativeReview": review,
             "error": error,
         })
         time.sleep(0.04)
@@ -152,12 +157,12 @@ def audit(catalog_path: Path) -> dict[str, Any]:
         state = item["audit"]["state"]
         states[state] = states.get(state, 0) + 1
     return {
-        "schemaVersion": 1,
+        "schemaVersion": 2,
         "generatedAt": utc_now(),
         "source": "GitHub API + governed Workspace portfolio catalog",
         "authenticated": bool(client.token),
         "coverage": {"expected": expected, "audited": len(results), "errors": sum(bool(item["error"]) for item in results), "complete": len(results) == expected},
-        "summary": {"states": states, "forks": sum(item["fork"] for item in results), "behindUpstream": sum(bool(item.get("behindBy")) for item in results), "private": sum(item["visibility"] == "private" for item in results)},
+        "summary": {"states": states, "forks": sum(item["fork"] for item in results), "behindUpstream": sum(bool(item.get("behindBy")) for item in results), "private": sum(item["visibility"] == "private" for item in results), "qualitativelyReviewed": sum(bool(item.get("qualitativeReview")) for item in results)},
         "repositories": sorted(results, key=lambda item: (-int(item["audit"]["priority"]), item["fullName"].lower())),
     }
 
@@ -175,10 +180,11 @@ def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("--catalog", type=Path, default=CATALOG)
     parser.add_argument("--output", type=Path, default=OUTPUT)
+    parser.add_argument("--decisions", type=Path, default=DECISIONS)
     parser.add_argument("--report", action="store_true")
     args = parser.parse_args()
     try:
-        payload = audit(args.catalog)
+        payload = audit(args.catalog, args.decisions)
         atomic_write(args.output, payload)
     except Exception as exc:
         print(json.dumps({"status": "STOP", "error": str(exc)[:500]}, ensure_ascii=False))

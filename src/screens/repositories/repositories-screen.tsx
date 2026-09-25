@@ -20,6 +20,13 @@ const stateTone: Record<FleetState, string> = {
   current: 'border-emerald-400/30 text-emerald-300',
 }
 
+const bucketLabel = {
+  prendre_vite: 'À prendre vite',
+  utile_bientot: 'Utile bientôt',
+  confort: 'Confort / laboratoire',
+  ignorer: 'Référence / ignorer',
+} as const
+
 async function fetchFleet(): Promise<GitHubFleetAudit> {
   const response = await fetch('/api/github-fleet', { cache: 'no-store' })
   if (!response.ok) throw new Error(`GitHub fleet audit unavailable (${response.status})`)
@@ -45,7 +52,7 @@ export function RepositoriesScreen() {
       if (category !== 'Tous' && repo.category !== category) return false
       if (state !== 'Tous' && repo.audit.state !== state) return false
       if (!needle) return true
-      return [repo.name, repo.fullName, repo.purpose, repo.enables, repo.audit.reason, repo.audit.recommendedAction]
+      return [repo.name, repo.fullName, repo.purpose, repo.enables, repo.audit.reason, repo.audit.recommendedAction, repo.qualitativeReview?.verdict, repo.qualitativeReview?.nextAction]
         .join(' ')
         .toLowerCase()
         .includes(needle)
@@ -76,7 +83,7 @@ export function RepositoriesScreen() {
                 <Metric label="Erreurs" value={fleet.coverage.errors} />
                 <Metric label="Privés" value={fleet.summary.private} />
               </div>
-              <p className="mt-3 text-xs text-muted">Dernier audit GitHub : <strong className="text-ink">{formatDate(fleet.generatedAt)}</strong> · {fleet.summary.forks} forks · preuve complète : {fleet.coverage.complete ? 'oui' : 'non'}.</p>
+              <p className="mt-3 text-xs text-muted">Dernier audit GitHub : <strong className="text-ink">{formatDate(fleet.generatedAt)}</strong> · {fleet.summary.forks} forks · {fleet.summary.qualitativelyReviewed ?? 0} décisions qualitatives · preuve complète : {fleet.coverage.complete ? 'oui' : 'non'}.</p>
             </>
           ) : null}
         </header>
@@ -116,7 +123,7 @@ function RepositoryCard({ repo }: { repo: GitHubFleetRepository }) {
         <span className={`rounded-full border px-2.5 py-1 text-[11px] font-semibold ${stateTone[repo.audit.state]}`}>{stateLabel[repo.audit.state]}</span>
       </div>
       <div className="mt-4 grid grid-cols-3 gap-2 text-center text-xs"><MiniMetric label="Retard amont" value={repo.behindBy ?? '—'} /><MiniMetric label="Avance fork" value={repo.aheadBy ?? '—'} /><MiniMetric label="Dernier push" value={repo.ageDays == null ? '—' : `${repo.ageDays} j`} /></div>
-      <dl className="mt-4 grid gap-3 text-sm"><Info label="Rôle" value={repo.purpose} /><Info label="Apport potentiel" value={repo.enables} /><Info label="Diagnostic" value={repo.audit.reason} /><Info label="Prochaine action" value={repo.audit.recommendedAction} accent /></dl>
+      <dl className="mt-4 grid gap-3 text-sm"><Info label="Rôle" value={repo.purpose} /><Info label="Apport potentiel" value={repo.enables} /><Info label="Diagnostic" value={repo.audit.reason} />{repo.qualitativeReview ? <><Info label="Décision qualitative" value={`${bucketLabel[repo.qualitativeReview.bucket]} — ${repo.qualitativeReview.verdict}`} /><Info label="Risque licence / intégration" value={repo.qualitativeReview.licenseRisk} /><Info label="Prochaine action vérifiée" value={repo.qualitativeReview.nextAction} accent /></> : <Info label="Prochaine action" value={repo.audit.recommendedAction} accent />}</dl>
       <div className="mt-4 flex flex-wrap gap-x-4 gap-y-1 border-t border-[var(--theme-border)] pt-3 text-xs text-muted"><span>Priorité {repo.audit.priority}/100</span><span>Push {formatDate(repo.pushedAt)}</span>{repo.license ? <span>Licence {repo.license}</span> : null}{repo.parent ? <span>Amont {repo.parent}</span> : null}</div>
     </article>
   )

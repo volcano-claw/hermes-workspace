@@ -39,6 +39,12 @@ export interface GitHubFleetRepository {
     reason: string
     recommendedAction: string
   }
+  qualitativeReview: {
+    bucket: 'prendre_vite' | 'utile_bientot' | 'confort' | 'ignorer'
+    verdict: string
+    nextAction: string
+    licenseRisk: string
+  } | null
   error: string | null
 }
 
@@ -58,6 +64,7 @@ export interface GitHubFleetAudit {
     forks: number
     behindUpstream: number
     private: number
+    qualitativelyReviewed: number
   }
   repositories: GitHubFleetRepository[]
 }
@@ -74,7 +81,7 @@ export function githubFleetAuditPath(home?: string) {
 
 export function readGitHubFleetAudit(filePath = githubFleetAuditPath()): GitHubFleetAudit {
   const payload = JSON.parse(fs.readFileSync(filePath, 'utf8')) as GitHubFleetAudit
-  if (payload.schemaVersion !== 1) throw new Error('Unsupported GitHub fleet audit schema')
+  if (![1, 2].includes(payload.schemaVersion)) throw new Error('Unsupported GitHub fleet audit schema')
   if (!payload.coverage?.complete) throw new Error('Incomplete GitHub fleet audit')
   if (payload.coverage.audited !== payload.coverage.expected) throw new Error('GitHub fleet coverage mismatch')
   if (payload.repositories.length !== payload.coverage.expected) throw new Error('GitHub fleet repository count mismatch')
