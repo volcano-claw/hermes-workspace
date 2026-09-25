@@ -22,6 +22,13 @@ export type SystemBoundary = {
   detail: string
 }
 
+export type SystemProofLevel = {
+  id: string
+  label: string
+  status: SystemConnectionStatus
+  evidence: string
+}
+
 export type SystemCockpitSnapshot = {
   mode: 'workspace_system_cockpit_v1'
   readOnly: true
@@ -38,6 +45,7 @@ export type SystemCockpitSnapshot = {
     operatorApiUrl: string | null
   }
   connections: Array<SystemConnection>
+  proofLevels: Array<SystemProofLevel>
   boundaries: Array<SystemBoundary>
   counts: {
     tasks: number
@@ -162,6 +170,7 @@ export async function getSystemCockpitSnapshot(
   const jarvisCanon = process.env.JARVIS_SIBLING_CANON || '/mnt/jarvis/workspace/HERMES-JARVIS-SIBLING.md'
   const jarvisBridge = process.env.JARVIS_BRIDGE_DIR || '/mnt/jarvis/bridge/hermes-jarvis'
   const mutualPath = path.join(contextRoot, MUTUAL_CARE_FILE)
+  const deliveryProofPath = path.join(contextRoot, 'runtime', 'WORKSPACE-DELIVERY-PROOF.json')
 
   const [apiProbe, operatorProbe] = await Promise.all([
     probeUrl(fetchImpl, `${apiUrl}/health`),
@@ -253,6 +262,33 @@ export async function getSystemCockpitSnapshot(
     { id: 'jarvis-boundary', label: 'Jarvis', value: 'Lecture seule', detail: 'Workspace lit le contrat/pont Jarvis; pas de réparation ou dispatch sans GO.' },
   ]
 
+  const proofLabels: Record<string, string> = {
+    process: '1. Processus vivant',
+    api: '2. API joignable',
+    business_contract: '3. Contrat métier valide',
+    interface_contract: '4. Interface publiée',
+    container_contract: '5. Contrat de déploiement',
+  }
+  let proofLevels: Array<SystemProofLevel> = []
+  try {
+    const proof = JSON.parse(fs.readFileSync(deliveryProofPath, 'utf-8')) as {
+      levels?: Record<string, { status?: string; evidence?: string }>
+    }
+    proofLevels = Object.entries(proof.levels ?? {}).map(([id, level]) => ({
+      id,
+      label: proofLabels[id] ?? id,
+      status: level.status === 'PASS' ? 'PASS' : level.status === 'STOP' ? 'STOP' : 'ATTENTION',
+      evidence: level.evidence ?? 'preuve absente',
+    }))
+  } catch {
+    proofLevels = [{
+      id: 'delivery-proof-missing',
+      label: 'Preuve de livraison',
+      status: 'ATTENTION',
+      evidence: `rapport absent ou illisible: ${deliveryProofPath}`,
+    }]
+  }
+
   const hardStops = connections.filter((item) => item.status === 'STOP').length
   const attentions = connections.filter((item) => item.status === 'ATTENTION').length
 
@@ -276,6 +312,7 @@ export async function getSystemCockpitSnapshot(
       operatorApiUrl,
     },
     connections,
+    proofLevels,
     boundaries,
     counts: {
       tasks: taskList.length,

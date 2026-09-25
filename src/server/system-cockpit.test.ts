@@ -32,5 +32,8 @@ describe('system-cockpit', () => {
       ]),
     )
     expect(snapshot.connections.find((connection) => connection.id === 'terminal')?.detail).toContain('conteneur hermes-workspace')
+    expect(snapshot.proofLevels).toEqual([
+      expect.objectContaining({ id: 'delivery-proof-missing', status: 'ATTENTION' }),
+    ])
   })
 })

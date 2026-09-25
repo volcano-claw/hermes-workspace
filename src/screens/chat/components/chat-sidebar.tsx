@@ -740,6 +740,7 @@ function ChatSidebarComponent({
   const isConductorActive = pathname === '/conductor'
   const isOperatorActive = pathname.startsWith('/operator')
   const isSystemActive = pathname.startsWith('/system')
+  const isRepositoriesActive = pathname.startsWith('/repositories')
   const isJarvisActive = pathname === '/jarvis'
   const isOperationsActive = pathname === '/operations'
   const isSwarmActive = pathname === '/swarm' || pathname === '/swarm2'
@@ -1018,6 +1019,13 @@ function ChatSidebarComponent({
     },
     {
       kind: 'link',
+      to: '/repositories',
+      icon: PuzzleIcon,
+      label: 'GitHub',
+      active: isRepositoriesActive,
+    },
+    {
+      kind: 'link',
       to: '/jarvis',
       icon: Rocket01Icon,
       label: 'Jarvis',
@@ -1121,7 +1129,7 @@ function ChatSidebarComponent({
                 )}
               >
                 <img
-                  src="/claude-avatar.webp"
+                  src="/hermes-avatar.webp"
                   alt="Hermes Agent"
                   className="size-6 rounded-lg"
                 />

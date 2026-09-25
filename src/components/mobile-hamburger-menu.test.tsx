@@ -16,7 +16,7 @@ describe('mobile hamburger system navigation', () => {
     expect(operator?.to).toBe('/operator')
     expect(operator?.match('/operator')).toBe(true)
     expect(operator?.match('/operator/details')).toBe(true)
-    expect(repositories?.label).toBe('Repos')
+    expect(repositories?.label).toBe('GitHub')
     expect(repositories?.to).toBe('/repositories')
   })
 })

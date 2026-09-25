@@ -92,7 +92,7 @@ export const MOBILE_HAMBURGER_NAV_ITEMS = [
   },
   {
     id: 'repositories',
-    label: 'Repos',
+    label: 'GitHub',
     icon: PuzzleIcon,
     to: '/repositories',
     match: (p: string) => p.startsWith('/repositories'),

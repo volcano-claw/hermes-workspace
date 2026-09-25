@@ -135,6 +135,22 @@ export const Route = createFileRoute('/system')({
                 </div>
               </section>
 
+              <section className="rounded-2xl border border-[var(--theme-border)] bg-[var(--theme-card)] p-4">
+                <h2 className="text-base font-semibold text-ink">Niveaux de preuve de livraison</h2>
+                <p className="mt-1 text-xs text-muted">Un processus vivant ne suffit plus : chaque niveau est vérifié séparément.</p>
+                <div className="mt-3 grid gap-3 md:grid-cols-2 xl:grid-cols-5">
+                  {data.proofLevels.map((level) => (
+                    <div key={level.id} className="rounded-xl border border-[var(--theme-border)] bg-[var(--theme-bg)] p-3">
+                      <div className="flex items-start justify-between gap-2">
+                        <div className="text-xs font-semibold text-ink">{level.label}</div>
+                        <StatusBadge status={level.status} />
+                      </div>
+                      <p className="mt-2 break-words font-mono text-[11px] leading-5 text-muted">{level.evidence}</p>
+                    </div>
+                  ))}
+                </div>
+              </section>
+
               <section className="grid grid-cols-1 gap-4 xl:grid-cols-2">
                 {data.connections.map((item) => <ConnectionCard key={item.id} item={item} />)}
               </section>
