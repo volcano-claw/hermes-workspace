@@ -3,8 +3,16 @@ import path from 'node:path'
 
 export type WorkspaceOperatorCockpitStatus = {
   mode: 'workspace_operator_cockpit_status_v1'
-  source: 'operatorapi_cockpit_status' | 'workspace_local_operator_health'
-  endpoint: '/api/operator/cockpit/status'
+  source:
+    | 'operator_ucp_v1'
+    | 'operatorapi_cockpit_status'
+    | 'workspace_local_operator_health'
+    | 'unconfigured'
+  endpoint:
+    | '/control/v1/health + /control/v1/capabilities'
+    | '/api/operator/cockpit/status'
+    | 'workspace://operator-health'
+    | null
   reachable: boolean
   ok: boolean
   operatorStatus: string | null
@@ -22,8 +30,10 @@ export type WorkspaceOperatorCockpitStatus = {
 type FetchLike = typeof fetch
 
 const MODE = 'workspace_operator_cockpit_status_v1' as const
-const SOURCE = 'operatorapi_cockpit_status' as const
-const ENDPOINT = '/api/operator/cockpit/status' as const
+const UCP_SOURCE = 'operator_ucp_v1' as const
+const UCP_ENDPOINT = '/control/v1/health + /control/v1/capabilities' as const
+const LEGACY_SOURCE = 'operatorapi_cockpit_status' as const
+const LEGACY_ENDPOINT = '/api/operator/cockpit/status' as const
 const TIMEOUT_MS = 3_000
 const DEFAULT_CONTEXT_ROOT = '/opt/data/hermes-context'
 
@@ -41,22 +51,41 @@ function asRecord(value: unknown): Record<string, unknown> | null {
     : null
 }
 
-function readString(record: Record<string, unknown> | null, key: string): string | null {
+function readString(
+  record: Record<string, unknown> | null,
+  key: string,
+): string | null {
   if (!record) return null
   const value = record[key]
   return typeof value === 'string' && value.trim() ? value.trim() : null
 }
 
-function readNumber(record: Record<string, unknown> | null, key: string): number | null {
+function readNumber(
+  record: Record<string, unknown> | null,
+  key: string,
+): number | null {
   if (!record) return null
   const value = record[key]
   return typeof value === 'number' && Number.isFinite(value) ? value : null
 }
 
-function readBoolean(record: Record<string, unknown> | null, key: string): boolean | null {
+function readBoolean(
+  record: Record<string, unknown> | null,
+  key: string,
+): boolean | null {
   if (!record) return null
   const value = record[key]
   return typeof value === 'boolean' ? value : null
+}
+
+function readOperations(record: Record<string, unknown> | null): Array<string> {
+  const operations = record?.operations
+  if (!Array.isArray(operations)) return []
+  return operations.flatMap((value) => {
+    if (typeof value === 'string') return [value]
+    const operation = readString(asRecord(value), 'operation')
+    return operation ? [operation] : []
+  })
 }
 
 function readText(filePath: string): string | null {
@@ -79,16 +108,24 @@ function countOpenIncidents(text: string | null): number | null {
 
 function localOperatorHealthStatus(): WorkspaceOperatorCockpitStatus | null {
   const root = process.env.HERMES_CONTEXT_ROOT || DEFAULT_CONTEXT_ROOT
-  const operatorHealth = readText(path.join(root, 'runtime', 'OPERATOR-HEALTH.md'))
+  const operatorHealth = readText(
+    path.join(root, 'runtime', 'OPERATOR-HEALTH.md'),
+  )
   const cronHealth = readText(path.join(root, 'runtime', 'CRON-HEALTH.md'))
-  const incidentIndex = readText(path.join(root, 'runtime', 'INCIDENT-INDEX.md'))
+  const incidentIndex = readText(
+    path.join(root, 'runtime', 'INCIDENT-INDEX.md'),
+  )
   const operatorStatus = statusFrom(operatorHealth)
   const cronStatus = statusFrom(cronHealth)
   if (!operatorStatus && !cronStatus) return null
   const openIncidents = countOpenIncidents(incidentIndex)
-  const ok = operatorStatus === 'PASS' && cronStatus === 'PASS' && (openIncidents ?? 0) === 0
+  const ok =
+    operatorStatus === 'PASS' &&
+    cronStatus === 'PASS' &&
+    (openIncidents ?? 0) === 0
   return baseStatus({
     source: 'workspace_local_operator_health',
+    endpoint: 'workspace://operator-health',
     reachable: true,
     ok,
     operatorStatus: ok ? 'PASS' : operatorStatus || 'ATTENTION',
@@ -102,11 +139,13 @@ function localOperatorHealthStatus(): WorkspaceOperatorCockpitStatus | null {
   })
 }
 
-function baseStatus(overrides: Partial<WorkspaceOperatorCockpitStatus>): WorkspaceOperatorCockpitStatus {
+function baseStatus(
+  overrides: Partial<WorkspaceOperatorCockpitStatus>,
+): WorkspaceOperatorCockpitStatus {
   return {
     mode: MODE,
-    source: SOURCE,
-    endpoint: ENDPOINT,
+    source: 'unconfigured',
+    endpoint: null,
     reachable: false,
     ok: false,
     operatorStatus: null,
@@ -125,7 +164,7 @@ function baseStatus(overrides: Partial<WorkspaceOperatorCockpitStatus>): Workspa
   }
 }
 
-function normalizePayload(body: unknown): WorkspaceOperatorCockpitStatus {
+function normalizeLegacyPayload(body: unknown): WorkspaceOperatorCockpitStatus {
   const root = asRecord(body)
   const result = asRecord(root?.result) || asRecord(root?.data) || root
   const summary = asRecord(result?.summary)
@@ -154,6 +193,8 @@ function normalizePayload(body: unknown): WorkspaceOperatorCockpitStatus {
       : phaseClosureStatus
 
   const normalized = baseStatus({
+    source: LEGACY_SOURCE,
+    endpoint: LEGACY_ENDPOINT,
     reachable: true,
     ok,
     operatorStatus: displayOperatorStatus,
@@ -177,9 +218,76 @@ function normalizePayload(body: unknown): WorkspaceOperatorCockpitStatus {
   return normalized
 }
 
+function normalizeUcpPayload(
+  healthBody: unknown,
+  capabilitiesBody: unknown,
+): WorkspaceOperatorCockpitStatus {
+  const health = asRecord(healthBody)
+  const capabilities = asRecord(capabilitiesBody)
+  const healthStatus = readString(health, 'status')
+  const readOnly = readString(health, 'mode') === 'read_only'
+  const ownerObserved = readBoolean(health, 'owner_observed') === true
+  const serverId = readString(capabilities, 'server_id')
+  const operations = readOperations(capabilities)
+  const contractReady =
+    serverId !== null &&
+    operations.includes('health.read') &&
+    operations.includes('capabilities.read')
+  const ok = healthStatus?.toLowerCase() === 'pass' && contractReady
+
+  return baseStatus({
+    source: UCP_SOURCE,
+    endpoint: UCP_ENDPOINT,
+    reachable: true,
+    ok,
+    operatorStatus: ok ? 'PASS' : 'ATTENTION',
+    phaseClosureStatus: null,
+    localControlPlaneClosed: ok && readOnly && ownerObserved,
+    summary: ok
+      ? `Operator UCP ${serverId} is reachable in read-only mode${ownerObserved ? ' with its owner observed' : ''}.`
+      : 'Operator UCP is reachable but its health/capabilities contract is incomplete.',
+  })
+}
+
+function readBearerToken(filePath: string | undefined): string | null {
+  if (!filePath) return null
+  const token = readText(filePath)?.trim()
+  return token || null
+}
+
+async function getLegacyCockpitStatus(
+  fetchImpl: FetchLike,
+  operatorApiUrl: string,
+): Promise<WorkspaceOperatorCockpitStatus> {
+  try {
+    const response = await fetchImpl(`${operatorApiUrl}${LEGACY_ENDPOINT}`, {
+      signal: AbortSignal.timeout(TIMEOUT_MS),
+    })
+
+    if (!response.ok) {
+      return baseStatus({
+        source: LEGACY_SOURCE,
+        endpoint: LEGACY_ENDPOINT,
+        reachable: true,
+        summary: `Legacy Operator cockpit fallback returned HTTP ${response.status}.`,
+      })
+    }
+
+    return normalizeLegacyPayload(await response.json())
+  } catch (error) {
+    const message = error instanceof Error ? error.message : String(error)
+    return baseStatus({
+      source: LEGACY_SOURCE,
+      endpoint: LEGACY_ENDPOINT,
+      summary: `Operator UCP and legacy cockpit fallback are unreachable: ${message}`,
+    })
+  }
+}
+
 export async function getOperatorCockpitStatus(options?: {
   fetchImpl?: FetchLike
   operatorApiUrl?: string
+  ucpBearerTokenFile?: string
 }): Promise<WorkspaceOperatorCockpitStatus> {
   const operatorApiUrl = normalizeBaseUrl(
     options?.operatorApiUrl ||
@@ -189,30 +297,44 @@ export async function getOperatorCockpitStatus(options?: {
 
   if (!operatorApiUrl) {
     return baseStatus({
-      summary: 'Operator API URL is not configured for Workspace.',
+      summary: 'Operator UCP URL is not configured for Workspace.',
     })
   }
 
   const fetchImpl = options?.fetchImpl || fetch
-  const target = `${operatorApiUrl}${ENDPOINT}`
+  const tokenFile =
+    options?.ucpBearerTokenFile ||
+    process.env.HERMES_OPERATOR_UCP_BEARER_TOKEN_FILE ||
+    process.env.UCP_BEARER_TOKEN_FILE
+  const token = readBearerToken(tokenFile)
+
+  if (!token) {
+    return getLegacyCockpitStatus(fetchImpl, operatorApiUrl)
+  }
 
   try {
-    const response = await fetchImpl(target, {
+    const init: RequestInit = {
+      headers: {
+        Accept: 'application/json',
+        Authorization: `Bearer ${token}`,
+      },
       signal: AbortSignal.timeout(TIMEOUT_MS),
-    })
+    }
+    const [healthResponse, capabilitiesResponse] = await Promise.all([
+      fetchImpl(`${operatorApiUrl}/control/v1/health`, init),
+      fetchImpl(`${operatorApiUrl}/control/v1/capabilities`, init),
+    ])
 
-    if (!response.ok) {
-      return baseStatus({
-        reachable: true,
-        summary: `Operator cockpit status returned HTTP ${response.status}.`,
-      })
+    if (!healthResponse.ok || !capabilitiesResponse.ok) {
+      return getLegacyCockpitStatus(fetchImpl, operatorApiUrl)
     }
 
-    return normalizePayload(await response.json())
-  } catch (error) {
-    const message = error instanceof Error ? error.message : String(error)
-    return baseStatus({
-      summary: `Operator cockpit status is unreachable: ${message}`,
-    })
+    const [healthBody, capabilitiesBody] = await Promise.all([
+      healthResponse.json(),
+      capabilitiesResponse.json(),
+    ])
+    return normalizeUcpPayload(healthBody, capabilitiesBody)
+  } catch {
+    return getLegacyCockpitStatus(fetchImpl, operatorApiUrl)
   }
 }
